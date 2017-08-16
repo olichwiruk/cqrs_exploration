@@ -1,4 +1,6 @@
 class User < ActiveRecord::Base
+  include Entity
+
   attr_accessor :name
   attr_accessor :email
 
