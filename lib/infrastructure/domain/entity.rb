@@ -1,3 +1,6 @@
+require 'infrastructure/event'
+require 'infrastructure/write_repo'
+
 module Entity
 
   def applied_events
@@ -5,16 +8,33 @@ module Entity
   end
 
   def apply_event(event)
-    event_to_store = Event.new(event_name(event),
-                               event.instance_values)
+    event_to_store = Event.new({name: event_name(event),
+                                data: event.instance_values})
     do_apply event
     applied_events << event_to_store
+    p applied_events
+  end
+
+  def commit
+    p applied_events
+    applied_events.each do |event|
+      save event
+      publish event
+    end
   end
 
   # @api private
   def do_apply(event)
     method_name = "on_#{event_name(event)}"
     method(method_name).call(event)
+  end
+
+  def save(event)
+    WriteRepo::add_event(event)
+  end
+
+  def publish(event)
+    #todo
   end
 
   def event_name(event)

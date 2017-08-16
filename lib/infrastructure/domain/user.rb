@@ -1,3 +1,7 @@
+require 'infrastructure/domain/entity'
+require 'infrastructure/events/user_created_event'
+require 'securerandom'
+
 class User < ActiveRecord::Base
   include Entity
 
@@ -10,11 +14,19 @@ class User < ActiveRecord::Base
   end
 
   class << self
+    include Entity
+
     def create_new_user(cmd_user)
       user = User.new(cmd_user.name, cmd_user.email)
-      data = "name: #{user.name}, email: #{user.email}"
-      WriteRepo::add_event(Event.new(name: 'create user',
-                                     data: data))
+      user.apply_event(UserCreatedEvent.new(aggregate_uid:
+                                       SecureRandom.uuid,
+                                       name: user.name,
+                                       email: user.email))
+      user
     end
+
+  end
+
+  def on_user_created(event)
   end
 end
