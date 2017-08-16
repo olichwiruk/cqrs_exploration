@@ -1,13 +1,9 @@
-module Types
-  include Dry::Types.module
-
-  Email = String.constrained(format:
-                /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
-end
-
 class User < ActiveRecord::Base
-  include Types
+  attr_accessor :name
+  attr_accessor :email
 
-  attribute :name, Types::String
-  attribute :email, Types::Email
+  def initialize(name, email)
+    @name = name
+    @email = email
+  end
 end
