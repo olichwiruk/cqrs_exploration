@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 20170811132433) do
   end
 
   create_table "write_repo", force: :cascade do |t|
+    t.integer "aggregate_id"
     t.string "event_name"
     t.string "data"
     t.datetime "created_at"
