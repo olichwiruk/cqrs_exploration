@@ -8,15 +8,15 @@ module Entity
   end
 
   def apply_event(event)
+    values = event.instance_values
     event_to_store = Event.new({name: event_name(event),
-                                data: event.instance_values})
+                                aggregate_uid: values.delete('aggregate_uid'),
+                                data: values })
     do_apply event
     applied_events << event_to_store
-    p applied_events
   end
 
   def commit
-    p applied_events
     applied_events.each do |event|
       save event
       publish event

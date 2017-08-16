@@ -24,7 +24,6 @@ class User < ActiveRecord::Base
                                        email: user.email))
       user
     end
-
   end
 
   def on_user_created(event)
