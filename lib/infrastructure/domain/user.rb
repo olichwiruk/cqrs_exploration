@@ -8,8 +8,8 @@ class User < ActiveRecord::Base
   end
 
   class << self
-    def create_new_user(user)
-      user = User.new(user.name, user.email)
+    def create_new_user(cmd_user)
+      user = User.new(cmd_user.name, cmd_user.email)
       data = "name: #{user.name}, email: #{user.email}"
       WriteRepo::add_event(Event.new(name: 'create user',
                                      data: data))
