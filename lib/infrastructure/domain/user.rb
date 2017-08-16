@@ -6,4 +6,13 @@ class User < ActiveRecord::Base
     @name = name
     @email = email
   end
+
+  class << self
+    def create_new_user(user)
+      user = User.new(user.name, user.email)
+      data = "name: #{user.name}, email: #{user.email}"
+      WriteRepo::add_event(Event.new(name: 'create user',
+                                     data: data))
+    end
+  end
 end

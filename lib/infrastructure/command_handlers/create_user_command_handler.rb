@@ -5,9 +5,7 @@ class CreateUserCommandHandler
   class << self
     def execute(command)
       user = command.user
-      data = "name: #{user.name}, email: #{user.email}"
-      WriteRepo::add_event(Event.new(name: 'create user',
-                                     data: data))
+      User.create_new_user(user)
     end
   end
 end
