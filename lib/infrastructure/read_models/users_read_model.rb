@@ -1,7 +1,7 @@
 class UsersReadModel
-
   class << self
 
+    #write
     def add_user(uid, user)
       name = user.name
       email = user.email
@@ -14,6 +14,7 @@ class UsersReadModel
       ActiveRecord::Base.connection.execute(sql)
     end
 
+    #read
     def all_users
       sql = <<-SQL
         select * from users
@@ -21,6 +22,17 @@ class UsersReadModel
 
       ActiveRecord::Base.connection.execute(sql)
     end
-  end
 
+    #validate
+    def check_email(email)
+      sql = <<-SQL
+        select * from users
+        where email = '#{email}'
+      SQL
+
+      emails = ActiveRecord::Base.connection.execute(sql)
+      emails.empty?
+    end
+
+  end
 end

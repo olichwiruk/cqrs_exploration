@@ -15,7 +15,11 @@ class UsersController < ApplicationController
     user = User.new(name: params[:user]['name'],
                     email: params[:user]['email'])
     command = CreateUserCommand.new(user)
-    CommandBus::send(command)
+
+    if UsersReadModel.check_email(user.email)
+      CommandBus::send(command)
+    end
+
     redirect_to users_path
   end
 
