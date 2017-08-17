@@ -1,7 +1,9 @@
 require 'infrastructure/event'
+require 'infrastructure/event_bus'
 require 'infrastructure/write_repo'
 
 module Entity
+  include Wisper::Publisher
 
   def applied_events
     @applied_events ||= []
@@ -18,7 +20,8 @@ module Entity
 
   def commit
     applied_events.each do |event|
-      save event
+      p event
+      save_in_write_repo event
       publish event
     end
   end
@@ -29,12 +32,13 @@ module Entity
     method(method_name).call(event)
   end
 
-  def save(event)
+  def save_in_write_repo(event)
     WriteRepo::add_event(event)
   end
 
   def publish(event)
-    #todo
+    self.subscribe(::EventBus.handler(event.name))
+    broadcast(event.name, event)
   end
 
   def event_name(event)
