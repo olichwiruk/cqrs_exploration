@@ -27,5 +27,6 @@ class User < ActiveRecord::Base
   end
 
   def on_user_created(event)
+    @uid = event.aggregate_uid
   end
 end
