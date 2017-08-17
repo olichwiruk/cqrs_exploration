@@ -5,17 +5,18 @@ require 'infrastructure/commands/create_user_command'
 class UsersController < ApplicationController
 
   def index
-    @users = User.all
+    @users = UsersReadModel.all_users
   end
 
   def new
   end
 
   def create
-    user = User.new(params[:user]['name'],
-                    params[:user]['email'])
+    user = User.new(name: params[:user]['name'],
+                    email: params[:user]['email'])
     command = CreateUserCommand.new(user)
     CommandBus::send(command)
+    redirect_to users_path
   end
 
 end
