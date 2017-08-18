@@ -1,0 +1,48 @@
+# This is the configuration used to check the rubocop source code.
+
+AllCops:
+  Exclude:
+    - 'vendor/**/*'
+    - 'spec/fixtures/**/*'
+    - 'tmp/**/*'
+    - 'config/**/*'
+    - 'log/**/*'
+    - 'storage/**/*'
+    - 'scripts/**/*'
+    - 'test/**/*'
+  TargetRubyVersion: 2.3
+  DisplayCopNames: true
+
+Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 90
+
+Metrics/MethodLength:
+  Max: 15
+
+Metrics/AbcSize:
+  Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'spec/**/*.rb'
+
+Metrics/ModuleLength:
+  Exclude:
+    - 'spec/**/*.rb'
+
+Layout/DotPosition:
+  EnforcedStyle: leading
+
+Layout/MultilineOperationIndentation:
+  EnforcedStyle: indented
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/AlignParameters:
+  EnforcedStyle: with_fixed_indentation
