@@ -20,7 +20,6 @@ module Entity
 
   def commit
     applied_events.each do |event|
-      p event
       save_in_write_repo event
       publish event
     end
