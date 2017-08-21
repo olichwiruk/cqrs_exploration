@@ -16,9 +16,9 @@ class User
   class << self
     include Entity
 
-    def create_new_user(cmd_user)
-      user = User.new(name: cmd_user.name,
-                      email: cmd_user.email)
+    def create_new_user(user_params)
+      user = User.new(name: user_params['name'],
+                      email: user_params['email'])
       user.apply_event(UserCreatedEvent.new(aggregate_uid:
                                        SecureRandom.uuid,
                                        name: user.name,

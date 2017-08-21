@@ -1,32 +1,29 @@
+# frozen_string_literal: true
+
 class CreateUserCommand
-  attr_reader :user
+  attr_reader :params
 
-  def initialize(user)
-    validate(user)
-    @user = user
-  end
+  Validator = Dry::Validation.Form do
+    configure do
+      config.messages = :i18n
 
-  def validate(user)
-    if user.name.empty?
-      raise "name can't be empty"
+      def email?(value)
+        !VALID_EMAIL_REGEX.match(value).nil?
+      end
+
+      VALID_EMAIL_REGEX =
+        /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
     end
 
-    if user.email.empty?
-      raise "email can't be empty"
-    end
-
-    unless is_a_valid_email?(user.email)
-      raise "invalid email"
-    end
+    required(:name).filled(:str?)
+    required(:email).filled(:str?, :email?)
   end
 
-private
-
-VALID_EMAIL_REGEX =
-  /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
-
-  def is_a_valid_email?(email)
-    email =~ VALID_EMAIL_REGEX
+  def initialize(params)
+    @params = params
   end
 
+  def validate
+    Validator.call(params)
+  end
 end

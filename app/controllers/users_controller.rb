@@ -1,26 +1,31 @@
-require 'infrastructure/domain/user'
-require 'infrastructure/command_bus'
-require 'infrastructure/commands/create_user_command'
+# frozen_string_literal: true
+
+require 'infrastructure/result_handler'
+require 'infrastructure/read_models/users_read_model'
 
 class UsersController < ApplicationController
+  include ResultHandler
 
   def index
     @users = UsersReadModel.all_users
   end
 
-  def new
-  end
+  def new; end
+
+  def edit; end
+
+  def update; end
 
   def create
-    user = User.new(name: params[:user]['name'],
-                    email: params[:user]['email'])
-    command = CreateUserCommand.new(user)
+    result = CreateUserService.call(params)
 
-    if UsersReadModel.check_email(user.email)
-      CommandBus::send(command)
+    handle_op_result(result: result) do |handler|
+      handler.on_success = lambda do
+        redirect_to users_path
+      end
+      handler.on_failure = proc do |errors|
+        redirect_to users_path, flash: { errors: errors }
+      end
     end
-
-    redirect_to users_path
   end
-
 end
