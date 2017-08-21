@@ -24,7 +24,7 @@ class UsersReadModel
     end
 
     #validate
-    def check_email(email)
+    def available_email?(email)
       sql = <<-SQL
         select * from users
         where email = '#{email}'

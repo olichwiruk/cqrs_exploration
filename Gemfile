@@ -35,6 +35,8 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'dry-types'
 gem 'dry-struct'
+gem 'dry-validation'
+gem 'dry-monads'
 gem 'wisper'
 
 group :development, :test do
