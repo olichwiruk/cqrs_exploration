@@ -26,7 +26,7 @@ class UsersReadModel
     #validate
     def available_email?(email)
       sql = <<-SQL
-        select * from users
+        select 1 from users
         where email = '#{email}'
       SQL
 
