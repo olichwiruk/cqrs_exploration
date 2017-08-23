@@ -38,6 +38,7 @@ gem 'dry-struct'
 gem 'dry-validation'
 gem 'dry-monads'
 gem 'wisper'
+gem 'formular'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -47,6 +48,8 @@ group :development, :test do
   gem 'selenium-webdriver'
   gem 'rubocop-git', github: 'blelump/rubocop-git'
   gem 'rubocop', '0.49.1'
+  gem 'rspec-core'
+  gem 'rspec'
 end
 
 group :development do
