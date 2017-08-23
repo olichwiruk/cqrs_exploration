@@ -2,6 +2,8 @@
 
 require 'infrastructure/result_handler'
 require 'infrastructure/read_models/users_read_model'
+require 'infrastructure/domain/user'
+require 'infrastructure/template_renderer'
 
 class UsersController < ApplicationController
   include ResultHandler
@@ -10,7 +12,18 @@ class UsersController < ApplicationController
     @users = UsersReadModel.all_users
   end
 
-  def new; end
+  def new
+    filename = 'app/views/users/new.html.erb'
+    view_model = UserRegistrationViewModel.new(
+      user: User.new,
+      csrf_token: form_authenticity_token
+    )
+
+    render html: TemplateRenderer.render(
+      template: filename,
+      view_model: view_model
+    ).html_safe
+  end
 
   def edit; end
 
@@ -24,7 +37,18 @@ class UsersController < ApplicationController
         redirect_to users_path
       end
       handler.on_failure = proc do |errors|
-        redirect_to users_path, flash: { errors: errors }
+        filename = 'app/views/users/new.html.erb'
+        view_model = UserRegistrationViewModel.new(
+          user: User.new(
+            name: params[:user][:name],
+            email: params[:user][:email]
+          ),
+          errors: errors
+        )
+        render html: TemplateRenderer.render(
+          template: filename,
+          view_model: view_model
+        ).html_safe
       end
     end
   end
