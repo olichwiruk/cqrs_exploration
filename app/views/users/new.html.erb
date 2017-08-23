@@ -1,10 +1,19 @@
 <h1>New user:</h1>
-<%= form_for :user, url: users_path do |f| %>
+<%= view_model.errors unless view_model.errors.empty? %>
+
+<% f = form(
+    view_model.user,
+    users_path,
+    path_prefix: 'user'
+  ) %>
+  <%= f.start %>
+  <%= f.hidden value: view_model.csrf_token,
+               name: 'authenticity_token'%> 
   <%= f.label :name %>
-  <%= f.text_field :name %>
+  <%= f.input :name %>
   <br>
   <%= f.label :email %>
-  <%= f.text_field :email %>
+  <%= f.input :email %>
   <br><br>
   <%= f.submit %>
-<% end %>
+<%= f.end %>
