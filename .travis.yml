@@ -5,4 +5,13 @@ rvm:
  - 2.3
 cache: bundler
 script:
-  - bundle exec rubocop-git HEAD~1
+  - |
+    rc=0;
+    for sha1 in $(git log --format=format:%H ${TRAVIS_COMMIT_RANGE}); do
+      echo $sha1;
+      git log --format=%B -n 1 $sha1;
+      bundle exec rubocop-git $sha1;
+      if (( $? != 0 )); then rc=1; fi;
+      echo -e "\n\n\n";
+    done;
+    exit $rc;
