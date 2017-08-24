@@ -8,4 +8,8 @@ class UserRegistrationViewModel
     @csrf_token = csrf_token
     @errors = errors
   end
+
+  def update(**options)
+    self.class.new(options)
+  end
 end
