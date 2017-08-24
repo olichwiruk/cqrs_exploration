@@ -3,12 +3,12 @@
 
 <% f = form(
     view_model.user,
-    users_path,
+    create_user_path,
     path_prefix: 'user'
   ) %>
   <%= f.start %>
   <%= f.hidden value: view_model.csrf_token,
-               name: 'authenticity_token'%> 
+               name: 'authenticity_token'%>
   <%= f.label :name %>
   <%= f.input :name %>
   <br>
