@@ -16,8 +16,16 @@ class TemplateRenderer
   end
 
   def call
-    erb = ERB.new(File.read(template))
+    erb = ERB.new(upload_template)
 
     erb.result(binding)
+  end
+
+  # @api private
+  def upload_template
+    File.read(template)
+  rescue => err
+    p err.message
+    raise "File can't be read"
   end
 end
