@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'infrastructure/domain/user'
+require 'read_model/user'
 
 class CreateUserCommandHandler
   M = Dry::Monads
@@ -11,7 +11,7 @@ class CreateUserCommandHandler
 
       return M.Left(validation_result.errors) unless validation_result.success?
 
-      user = User.create_new_user(validation_result.output)
+      user = ReadModel::User.create_new_user(validation_result.output)
       user.commit
 
       M.Right(user)

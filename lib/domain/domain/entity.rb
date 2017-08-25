@@ -11,9 +11,11 @@ module Entity
 
   def apply_event(event)
     values = event.instance_values
-    event_to_store = Event.new({name: event_name(event),
-                                aggregate_uid: values.delete('aggregate_uid'),
-                                data: values })
+    event_to_store = Event.new(
+      name: event_name(event),
+      aggregate_uid: values.delete('aggregate_uid'),
+      data: values
+    )
     do_apply event
     applied_events << event_to_store
   end
@@ -31,16 +33,19 @@ module Entity
     method(method_name).call(event)
   end
 
+  # @api private
   def save_in_write_repo(event)
-    WriteRepo::add_event(event)
+    WriteRepo.add_event(event)
   end
 
+  # @api private
   def publish(event)
-    self.subscribe(::EventBus.handler(event.name))
+    subscribe(::EventBus.handler(event.name))
     broadcast(event.name, event)
   end
 
+  # @api private
   def event_name(event)
-    "#{event.class.name.underscore}".sub(/_event/, '')
+    event.class.name.underscore.to_s.sub(/_event/, '')
   end
 end

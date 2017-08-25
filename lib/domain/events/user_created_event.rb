@@ -6,5 +6,4 @@ class UserCreatedEvent < Dry::Struct
   attribute :aggregate_uid, Types::String
   attribute :name, Types::String
   attribute :email, Types::Email
-
 end
