@@ -1,5 +1,12 @@
+<% if session[:user_id].nil? %>
+  <%= link_to 'Login', login_path %>
+<% else %>
+  <%= "Hi, #{session[:user_id]}!" %><br>
+  <%= link_to 'Logout', logout_path %>
+<% end %>
+
 <h1>Users:</h1>
-<%= link_to 'New', new_user_path %><br><br>
+<%= link_to 'New', new_user_path %><br>
 <%= flash[:errors] %><br>
 <% @users.each do |user| %>
   <%= user['name'] %> | <%= user['email'] %>
