@@ -1,11 +1,21 @@
 <h1>Edit user:</h1>
-<%= form_for @user do |f| %>
+<%= view_model.errors unless view_model.errors.empty? %>
+
+<% f = form(
+    view_model.user,
+    user_path(id: view_model.user.id),
+    method: 'put',
+    csrf_token: view_model.csrf_token,
+    csrf_token_name: 'authenticity_token',
+    errors: [],
+    path_prefix: 'user'
+  ) %>
+  <%= f.start %>
   <%= f.label :name %>
-  <%= f.text_field :name %>
+  <%= f.input :name %>
   <br>
   <%= f.label :email %>
-  <%= f.text_field :email %>
+  <%= f.input :email %>
   <br><br>
   <%= f.submit %>
-<% end %>
-
+<%= f.end %>
