@@ -1,13 +1,12 @@
-Dir["#{File.dirname(__FILE__)}/command_handlers/*.rb"].each do |file|
+# frozen_string_literal: true
+
+Dir["#{Rails.root}/lib/domain/command_handlers/*.rb"].each do |file|
   require file
 end
-#todo lib container
-
+# TODO: lib container
 
 class CommandBus
-
   class << self
-
     def send(command)
       bus = {
         'CreateUserCommand' => 'CreateUserCommandHandler'
@@ -16,6 +15,5 @@ class CommandBus
       handler = bus.fetch(command.class.to_s).constantize
       handler.execute(command)
     end
-
   end
 end

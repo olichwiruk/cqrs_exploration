@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'infrastructure/command_bus'
-require 'infrastructure/commands/create_user_command'
+require 'domain/commands/create_user_command'
 require 'infrastructure/result_handler'
-require 'infrastructure/read_models/users_read_model'
+require 'infrastructure/repositories/users_read_model'
 
 class CreateUserService
   class << self
