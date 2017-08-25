@@ -1,0 +1,18 @@
+<h3>Select user:</h3>
+
+<% f = form(
+    User.new,
+    login_user_path,
+  ) %>
+  <%= f.start %>
+  <%= f.hidden value: view_model.csrf_token,
+               name: 'authenticity_token'%>
+  <%= f.select(
+    name: :user_id,
+    collection: view_model.users.collect do |u|
+      [u['email'], u['id']]
+    end
+  ) %>
+  <br><br>
+  <%= f.submit %>
+<%= f.end %>
