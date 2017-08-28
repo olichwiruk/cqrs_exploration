@@ -40,6 +40,7 @@ gem 'dry-monads'
 gem 'wisper'
 gem 'formular'
 gem 'disposable'
+gem 'request_store'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

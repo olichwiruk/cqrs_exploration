@@ -6,15 +6,14 @@ module Entity
   include Wisper::Publisher
 
   def applied_events
-    @applied_events ||= []
+    RequestStore.store[:applied_events] ||= []
   end
 
   def apply_event(event)
-    values = event.instance_values
     event_to_store = Event.new(
       name: event_name(event),
-      aggregate_uid: values.delete('aggregate_uid'),
-      data: values
+      aggregate_uid: event.aggregate_uid,
+      data: event.values
     )
     do_apply event
     applied_events << event_to_store
@@ -40,8 +39,9 @@ module Entity
 
   # @api private
   def publish(event)
-    subscribe(::EventBus.handler(event.name))
-    broadcast(event.name, event)
+    Wisper.subscribe(::EventBus.handler(event.name)) do
+      broadcast(event.name, event)
+    end
   end
 
   # @api private
