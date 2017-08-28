@@ -21,9 +21,13 @@ Metrics/LineLength:
 
 Metrics/MethodLength:
   Max: 15
+  Exclude:
+    - 'app/controllers/**/*.rb'
 
 Metrics/AbcSize:
   Max: 20
+  Exclude:
+    - 'app/controllers/**/*.rb'
 
 Metrics/BlockLength:
   Exclude:
