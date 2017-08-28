@@ -9,7 +9,8 @@ class CommandBus
   class << self
     def send(command)
       bus = {
-        'CreateUserCommand' => 'CreateUserCommandHandler'
+        'CreateUserCommand' => 'CreateUserCommandHandler',
+        'UpdateUserCommand' => 'UpdateUserCommandHandler'
       }
 
       handler = bus.fetch(command.class.to_s).constantize
