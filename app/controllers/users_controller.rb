@@ -74,8 +74,8 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_edition_view_model(
-          user: UsersReadModel.find(params[:id]).
-            update_from_hash(params[:user]),
+          user: UsersReadModel.find(params[:id])
+            .update_from_hash(params[:user]),
           csrf_token: form_authenticity_token,
           errors: errors
         )
