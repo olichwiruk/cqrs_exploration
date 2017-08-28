@@ -11,6 +11,8 @@
     path_prefix: 'user'
   ) %>
   <%= f.start %>
+  <%= f.hidden value: view_model.user.uid,
+               name: 'user[uid]' %>
   <%= f.label :name %>
   <%= f.input :name %>
   <br>
