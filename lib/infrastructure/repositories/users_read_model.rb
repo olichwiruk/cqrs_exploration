@@ -4,12 +4,26 @@ class UsersReadModel
   class << self
     # write
     def add_user(uid, user)
-      name = user.name
-      email = user.email
+      name = user['name']
+      email = user['email']
 
       sql = <<-SQL
         insert into users (uid, name, email, created_at, updated_at)
         values ('#{uid}', '#{name}', '#{email}', '#{Time.now}', '#{Time.now}')
+      SQL
+
+      ActiveRecord::Base.connection.execute(sql)
+    end
+
+    def update_user(uid, data)
+      changes = data.collect do |k, v|
+        "#{k} = '#{v}'"
+      end.join(',')
+
+      sql = <<-SQL
+        update users
+        set #{changes}
+        where uid = '#{uid}'
       SQL
 
       ActiveRecord::Base.connection.execute(sql)
