@@ -22,7 +22,7 @@ class UsersReadModel
 
       sql = <<-SQL
         update users
-        set #{changes}
+        set #{changes}, updated_at = '#{Time.now}'
         where uid = '#{uid}'
       SQL
 
