@@ -6,10 +6,7 @@ class UserCreatedEventHandler
   def user_created(event)
     UsersReadModel.add_user(
       event.aggregate_uid,
-      User.new(
-        name: event[:data]['name'],
-        email: event[:data]['email']
-      )
+      event.data
     )
   end
 end
