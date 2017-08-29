@@ -35,6 +35,7 @@ class UsersController < ApplicationController
       end
 
       handler.on_failure = proc do |errors|
+        update_registration_view_model(
           user: User.new(
             name: params[:user][:name],
             email: params[:user][:email]
