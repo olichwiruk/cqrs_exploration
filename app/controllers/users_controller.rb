@@ -40,6 +40,7 @@ class UsersController < ApplicationController
             name: params[:user][:name],
             email: params[:user][:email]
           ),
+          csrf_token: form_authenticity_token,
           errors: errors
         )
         new
