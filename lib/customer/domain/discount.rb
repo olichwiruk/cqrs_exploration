@@ -9,7 +9,17 @@ module Customer
       class << self
         include Infrastructure::Entity
 
-        def apply_discount(aggregate_uid:, value:); end
+        def apply_discount(aggregate_uid:, value:)
+          apply_event(
+            Customer::Events::DiscountAppliedEvent.new(
+              aggregate_uid: aggregate_uid,
+              value: value
+            )
+          )
+          self
+        end
+
+        def on_discount_applied(event); end
       end
     end
   end
