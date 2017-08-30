@@ -8,6 +8,8 @@ module Customer
 
       class << self
         include Infrastructure::Entity
+
+        def apply_discount(aggregate_uid:, value:); end
       end
     end
   end
