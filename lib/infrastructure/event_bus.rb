@@ -10,7 +10,8 @@ module Infrastructure
       def handler(event_name)
         bus = {
           'user_created' => 'Customer::EventHandlers::UserCreatedEventHandler',
-          'user_updated' => 'Customer::EventHandlers::UserUpdatedEventHandler'
+          'user_updated' => 'Customer::EventHandlers::UserUpdatedEventHandler',
+          'discount_applied' => 'Customer::EventHandlers::DiscountAppliedEventHandler'
         }
 
         bus.fetch(event_name).constantize.new
