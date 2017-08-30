@@ -17,6 +17,18 @@ module Infrastructure
           ActiveRecord::Base.connection.execute(sql)
         end
 
+        def apply_discount(uid, data)
+          value = data['value']
+
+          sql = <<-SQL
+            update users
+            set discount = discount+#{value}, updated_at = '#{Time.now}'
+            where uid = '#{uid}'
+          SQL
+
+          ActiveRecord::Base.connection.execute(sql)
+        end
+
         def update_user(uid, data)
           changes = data.collect do |k, v|
             "#{k} = '#{v}'"

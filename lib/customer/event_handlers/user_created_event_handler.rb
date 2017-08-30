@@ -10,6 +10,12 @@ module Customer
           event.aggregate_uid,
           event.data
         )
+
+        command = Customer::Commands::ApplyDiscountCommand.new(
+          aggregate_uid: event.aggregate_uid,
+          value: 10
+        )
+        Infrastructure::CommandBus.send(command)
       end
     end
   end
