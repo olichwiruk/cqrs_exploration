@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 require 'infrastructure/result_handler'
-require 'infrastructure/repositories/users_read_model'
-require 'read_model/user'
+require 'infrastructure/repositories/users_repository'
+require 'customer/read_model/user'
 require 'infrastructure/template_renderer'
 
 class UsersController < ApplicationController
-  include ResultHandler
+  include Infrastructure::ResultHandler
 
   def index
-    @users = UsersReadModel.all_users
+    @users = Infrastructure::Repositories::UsersRepository.all_users
   end
 
   def new
-    render html: TemplateRenderer.render(
+    render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/new.html.erb',
       view_model: registration_view_model
     ).html_safe
@@ -21,7 +21,7 @@ class UsersController < ApplicationController
 
   def registration_view_model
     @view_model ||= UserRegistrationViewModel.new(
-      user: User.new,
+      user: ::User.new,
       csrf_token: form_authenticity_token
     )
   end
@@ -36,7 +36,7 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_registration_view_model(
-          user: User.new(
+          user: ::User.new(
             name: params[:user][:name],
             email: params[:user][:email]
           ),
@@ -53,7 +53,7 @@ class UsersController < ApplicationController
   end
 
   def edit
-    render html: TemplateRenderer.render(
+    render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/edit.html.erb',
       view_model: edition_view_model
     ).html_safe
@@ -61,7 +61,7 @@ class UsersController < ApplicationController
 
   def edition_view_model
     @view_model ||= UserRegistrationViewModel.new(
-      user: UsersReadModel.find(params[:id]),
+      user: Infrastructure::Repositories::UsersRepository.find(params[:id]),
       csrf_token: form_authenticity_token
     )
   end
@@ -76,7 +76,7 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_edition_view_model(
-          user: UsersReadModel.find(params[:id])
+          user: Infrastructure::Repositories::UsersRepository.find(params[:id])
             .update_from_hash(params[:user]),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -94,11 +94,11 @@ class UsersController < ApplicationController
 
   def log
     login_view_model = UserLoginViewModel.new(
-      users: UsersReadModel.all_users,
+      users: Infrastructure::Repositories::UsersRepository.all_users,
       csrf_token: form_authenticity_token
     )
 
-    render html: TemplateRenderer.render(
+    render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
       view_model: login_view_model
     ).html_safe

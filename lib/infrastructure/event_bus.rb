@@ -1,18 +1,20 @@
 # frozen_string_literal: true
 
-Dir["#{Rails.root}/lib/domain/event_handlers/*.rb"].each do |file|
+Dir["#{Rails.root}/lib/customer/event_handlers/*.rb"].each do |file|
   require file
 end
 
-class EventBus
-  class << self
-    def handler(event_name)
-      bus = {
-        'user_created' => 'UserCreatedEventHandler',
-        'user_updated' => 'UserUpdatedEventHandler'
-      }
+module Infrastructure
+  class EventBus
+    class << self
+      def handler(event_name)
+        bus = {
+          'user_created' => 'Customer::EventHandlers::UserCreatedEventHandler',
+          'user_updated' => 'Customer::EventHandlers::UserUpdatedEventHandler'
+        }
 
-      bus.fetch(event_name).constantize.new
+        bus.fetch(event_name).constantize.new
+      end
     end
   end
 end

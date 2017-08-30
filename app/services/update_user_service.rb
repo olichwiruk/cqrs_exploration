@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'infrastructure/command_bus'
+require 'infrastructure/repositories/users_repository'
+require 'customer/commands/update_user_command'
+
 class UpdateUserService
   class << self
     M = Dry::Monads
@@ -10,14 +14,14 @@ class UpdateUserService
       if result.success?
         diff = differences(
           params[:user],
-          UsersReadModel.find(params[:id])
+          Infrastructure::Repositories::UsersRepository.find(params[:id])
         )
         return M.Left(error: ['no changes']) if diff.empty?
 
-        command = UpdateUserCommand.new(
+        command = Customer::Commands::UpdateUserCommand.new(
           diff.merge(uid: params[:user][:uid])
         )
-        result = CommandBus.send(command)
+        result = Infrastructure::CommandBus.send(command)
       end
 
       result
@@ -25,7 +29,8 @@ class UpdateUserService
 
     # @api private
     def validate_email(user_id, email)
-      if UsersReadModel.available_email_for_user?(user_id, email)
+      if Infrastructure::Repositories::UsersRepository
+          .available_email_for_user?(user_id, email)
         M.Right(true)
       else
         M.Left(email: ['email is taken'])

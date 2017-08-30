@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+
 require 'infrastructure/types'
 
-class Event < Dry::Struct
-  include Types
+module Infrastructure
+  class Event < Dry::Struct
+    include Infrastructure::Types
 
-  attribute :aggregate_uid, Types::String
-  attribute :name, Types::String
-  attribute :data, Types::String
+    attribute :aggregate_uid, Types::String
+    attribute :name, Types::String
+    attribute :data, Types::String
+  end
 end

@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'infrastructure/command_bus'
-require 'domain/commands/create_user_command'
-require 'infrastructure/result_handler'
-require 'infrastructure/repositories/users_read_model'
+require 'customer/commands/create_user_command'
+require 'infrastructure/repositories/users_repository'
 
 class CreateUserService
   class << self
@@ -13,8 +12,8 @@ class CreateUserService
       result = validate_email(params[:user][:email])
 
       if result.success?
-        command = CreateUserCommand.new(params[:user])
-        result = CommandBus.send(command)
+        command = Customer::Commands::CreateUserCommand.new(params[:user])
+        result = Infrastructure::CommandBus.send(command)
       end
 
       result
@@ -22,7 +21,7 @@ class CreateUserService
 
     # @api private
     def validate_email(email)
-      if UsersReadModel.available_email?(email)
+      if Infrastructure::Repositories::UsersRepository.available_email?(email)
         M.Right(true)
       else
         M.Left(email: ['email is taken'])
