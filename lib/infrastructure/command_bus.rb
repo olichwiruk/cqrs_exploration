@@ -3,7 +3,6 @@
 Dir["#{Rails.root}/lib/customer/command_handlers/*.rb"].each do |file|
   require file
 end
-# TODO: lib container
 
 module Infrastructure
   class CommandBus
@@ -13,7 +12,9 @@ module Infrastructure
           'Customer::Commands::CreateUserCommand' =>
             'Customer::CommandHandlers::CreateUserCommandHandler',
           'Customer::Commands::UpdateUserCommand' =>
-            'Customer::CommandHandlers::UpdateUserCommandHandler'
+            'Customer::CommandHandlers::UpdateUserCommandHandler',
+          'Customer::Commands::ApplyDiscountCommand' =>
+            'Customer::CommandHandlers::ApplyDiscountCommandHandler'
         }
 
         handler = bus.fetch(command.class.to_s).constantize
