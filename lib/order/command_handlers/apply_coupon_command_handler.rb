@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Customer
+module Order
   module CommandHandlers
-    class ApplyDiscountCommandHandler
+    class ApplyCouponCommandHandler
       M = Dry::Monads
 
       class << self
@@ -11,7 +11,7 @@ module Customer
 
           return M.Left(validation_result.errors) unless validation_result.success?
 
-          discount = Customer::Domain::Discount.apply_discount(validation_result.output)
+          discount = Order::Domain::Coupon.apply_coupon(validation_result.output)
 
           M.Right(discount)
         end
