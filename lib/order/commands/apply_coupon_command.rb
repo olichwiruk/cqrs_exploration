@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Customer
+module Order
   module Commands
-    class ApplyDiscountCommand
+    class ApplyCouponCommand
       attr_reader :params
 
       Validator = Dry::Validation.Schema do

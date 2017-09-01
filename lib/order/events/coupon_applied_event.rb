@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-module Customer
+module Order
   module Events
-    class DiscountAppliedEvent < Dry::Struct
+    class CouponAppliedEvent < Dry::Struct
       include Infrastructure::Types
 
       attribute :aggregate_uid, Infrastructure::Types::String
