@@ -11,6 +11,7 @@ module Infrastructure
         bus = {
           'user_created' => 'Customer::EventHandlers::UserCreatedEventHandler',
           'user_updated' => 'Customer::EventHandlers::UserUpdatedEventHandler',
+          'order_created' => 'Order::EventHandlers::OrderCreatedEventHandler',
           'coupon_applied' => 'Order::EventHandlers::CouponAppliedEventHandler'
         }
 
