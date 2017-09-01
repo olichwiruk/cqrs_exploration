@@ -16,6 +16,8 @@ module Infrastructure
             'Customer::CommandHandlers::CreateUserCommandHandler',
           'Customer::Commands::UpdateUserCommand' =>
             'Customer::CommandHandlers::UpdateUserCommandHandler',
+          'Order::Commands::CreateOrderCommand' =>
+            'Order::CommandHandlers::CreateOrderCommandHandler',
           'Order::Commands::ApplyCouponCommand' =>
             'Order::CommandHandlers::ApplyCouponCommandHandler'
         }
