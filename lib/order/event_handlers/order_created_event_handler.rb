@@ -8,6 +8,13 @@ module Order
           event.aggregate_uid,
           event.data
         )
+
+        command = Order::Commands::ApplyCouponCommand.new(
+          aggregate_uid: event.aggregate_uid,
+          value: 10
+        )
+
+        Infrastructure::CommandBus.send(command)
       end
     end
   end
