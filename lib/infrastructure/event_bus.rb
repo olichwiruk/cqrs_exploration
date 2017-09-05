@@ -11,8 +11,8 @@ module Infrastructure
         bus = {
           'user_created' => 'Customer::EventHandlers::UserCreatedEventHandler',
           'user_updated' => 'Customer::EventHandlers::UserUpdatedEventHandler',
-          'order_created' => 'Order::EventHandlers::OrderCreatedEventHandler',
-          'coupon_applied' => 'Order::EventHandlers::CouponAppliedEventHandler'
+          'order_created' => 'Order::ProcessManagers::OrderProcessManagerRouter',
+          'coupon_applied' => 'Order::ProcessManagers::OrderProcessManagerRouter'
         }
 
         bus.fetch(event_name).constantize.new
