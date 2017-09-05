@@ -10,6 +10,13 @@ module Customer
           event.aggregate_uid,
           event.data
         )
+
+        command = Order::Commands::CreateOrderCommand.new(
+          user_uid: event.aggregate_uid,
+          discount: 10
+        )
+
+        Infrastructure::CommandBus.send(command)
       end
     end
   end

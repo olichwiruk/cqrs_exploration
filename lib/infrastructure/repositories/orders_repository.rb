@@ -14,6 +14,16 @@ module Infrastructure
 
           ActiveRecord::Base.connection.execute(sql)
         end
+
+        def apply_coupon_to_order(order_id, value)
+          sql = <<-SQL
+            update orders
+            set discount = discount + #{value}, updated_at = '#{Time.now}'
+            where uid = '#{order_id}'
+          SQL
+
+          ActiveRecord::Base.connection.execute(sql)
+        end
       end
     end
   end
