@@ -5,8 +5,11 @@
   <br>
   <a href='<%= logout_path %>'>Logout</a>
 <% end %>
-
+<br><br>
+<a href='<%= users_path %>'>Users</a>
 <h1>Products:</h1>
+<a href='<%= new_product_path %>'>New</a>
+<br>
 <% view_model.products.each do |product| %>
   <%= product[:name] %> | <%= product[:quantity] %>
   <br>
