@@ -31,6 +31,7 @@ ActiveRecord::Schema.define(version: 20170915091906) do
     t.string "uuid"
     t.string "name"
     t.integer "quantity"
+    t.integer "price"
   end
 
   create_table "users", force: :cascade do |t|

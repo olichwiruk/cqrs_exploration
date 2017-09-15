@@ -7,6 +7,7 @@ class AddProductService
 
     def call(params)
       params[:quantity] = params[:quantity].to_i
+      params[:price] = params[:price].to_i
       params_validation = validate(params)
       return params_validation unless params_validation.success?
 
@@ -27,6 +28,7 @@ class AddProductService
 
       required(:name).filled(:str?)
       required(:quantity).filled(:int?, gteq?: 0)
+      required(:price).filled(:int?, gt?: 0)
     end
 
     # @api private

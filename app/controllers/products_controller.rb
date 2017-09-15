@@ -40,7 +40,8 @@ class ProductsController < ApplicationController
         update_add_product_view_model(
           product: ProductsRepo.build(
             name: params[:product][:name],
-            quantity: params[:product][:quantity]
+            quantity: params[:product][:quantity],
+            price: params[:product][:price]
           ),
           csrf_token: form_authenticity_token,
           errors: errors

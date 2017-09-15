@@ -15,6 +15,9 @@
   <br>
   <%= f.label :quantity %>
   <%= f.input :quantity, type: 'number', value: view_model.product.quantity %>
+  <br>
+  <%= f.label :price %>
+  <%= f.input :price, type: 'number', value: view_model.product.price %>
   <br><br>
   <%= f.submit %>
 <%= f.end %>
