@@ -1,0 +1,13 @@
+<% if view_model.current_user_id.nil? %>
+  <a href='<%= login_path %>'>Login</a>
+<% else %>
+  <%= "Hi, #{view_model.current_user_id}!" %>
+  <br>
+  <a href='<%= logout_path %>'>Logout</a>
+<% end %>
+
+<h1>Products:</h1>
+<% view_model.products.each do |product| %>
+  <%= product[:name] %> | <%= product[:quantity] %>
+  <br>
+<% end %>
