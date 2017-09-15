@@ -10,6 +10,7 @@ module Product
       property :uuid
       property :name
       property :quantity, default: 0
+      property :price
 
       def attributes
         instance_variable_get(:@fields)
@@ -21,7 +22,8 @@ module Product
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
             name: name,
-            quantity: quantity
+            quantity: quantity,
+            price: price
           )
         )
         self
