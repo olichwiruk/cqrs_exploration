@@ -1,20 +1,17 @@
 # frozen_string_literal: true
 
-require 'infrastructure/types'
-
 module Customer
   module Events
     class UserCreatedEvent < Dry::Struct
       include Infrastructure::Types
 
-      attribute :aggregate_uid, Infrastructure::Types::String
+      attribute :aggregate_type, Infrastructure::Types::String
+      attribute :aggregate_id, Infrastructure::Types::String
       attribute :name, Infrastructure::Types::String
       attribute :email, Infrastructure::Types::Email
 
       def values
-        val = instance_values
-        val.delete('aggregate_uid')
-        val
+        instance_values.without('aggregate_id', 'aggregate_type')
       end
     end
   end

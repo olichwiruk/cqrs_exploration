@@ -1,7 +1,8 @@
 class CreateWriteRepo < ActiveRecord::Migration[5.1]
   def change
     create_table :write_repo do |t|
-      t.string :aggregate_uid
+      t.string :aggregate_type
+      t.string :aggregate_id
       t.string :event_name
       t.string :data
 

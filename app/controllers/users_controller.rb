@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-require 'infrastructure/result_handler'
-require 'infrastructure/repositories/users_repository'
-require 'customer/read_model/user'
-require 'infrastructure/template_renderer'
-
 class UsersController < ApplicationController
   include Infrastructure::ResultHandler
+  UsersRepo = Infrastructure::Repositories::UsersRepository
 
   def index
-    @users = Infrastructure::Repositories::UsersRepository.all_users
+    render html: Infrastructure::TemplateRenderer.render(
+      template: 'app/views/users/index.html.erb',
+      view_model: UsersListViewModel.new(
+        users: UsersRepo.all_users,
+        current_user_id: session[:user_id]
+      )
+    ).html_safe
   end
 
   def new
@@ -21,13 +23,13 @@ class UsersController < ApplicationController
 
   def registration_view_model
     @view_model ||= UserRegistrationViewModel.new(
-      user: ::User.new,
+      user: UsersRepo.build(nil),
       csrf_token: form_authenticity_token
     )
   end
 
   def create
-    result = CreateUserService.call(params)
+    result = CreateUserService.call(params[:user].permit!)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -36,7 +38,7 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_registration_view_model(
-          user: ::User.new(
+          user: UsersRepo.build(
             name: params[:user][:name],
             email: params[:user][:email]
           ),
@@ -61,7 +63,7 @@ class UsersController < ApplicationController
 
   def edition_view_model
     @view_model ||= UserRegistrationViewModel.new(
-      user: Infrastructure::Repositories::UsersRepository.find(params[:id]),
+      user: UsersRepo.find(params[:id]),
       csrf_token: form_authenticity_token
     )
   end
@@ -76,7 +78,7 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_edition_view_model(
-          user: Infrastructure::Repositories::UsersRepository.find(params[:id])
+          user: UsersRepo.find(params[:id])
             .update_from_hash(params[:user]),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -92,15 +94,13 @@ class UsersController < ApplicationController
 
   def show; end
 
-  def log
-    login_view_model = UserLoginViewModel.new(
-      users: Infrastructure::Repositories::UsersRepository.all_users,
-      csrf_token: form_authenticity_token
-    )
-
+  def login_view
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
-      view_model: login_view_model
+      view_model: UserLoginViewModel.new(
+        users: UsersRepo.all_users,
+        csrf_token: form_authenticity_token
+      )
     ).html_safe
   end
 

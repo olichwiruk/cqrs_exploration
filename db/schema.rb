@@ -12,31 +12,23 @@
 
 ActiveRecord::Schema.define(version: 20170905120123) do
 
-  create_table "coupons", force: :cascade do |t|
-    t.string "uid"
-    t.integer "value"
-    t.string "state"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "order_processes", force: :cascade do |t|
-    t.string "uid"
+    t.string "order_id", null: false
     t.boolean "completed"
-    t.string "order_id"
     t.string "state"
+    t.index ["order_id"], name: "index_order_processes_on_order_id", unique: true
   end
 
   create_table "orders", force: :cascade do |t|
-    t.string "uid"
-    t.string "user_uid"
+    t.string "uuid"
+    t.string "user_id"
     t.integer "discount", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "uid"
+    t.string "uuid"
     t.string "name"
     t.string "email"
     t.datetime "created_at", null: false
@@ -44,7 +36,8 @@ ActiveRecord::Schema.define(version: 20170905120123) do
   end
 
   create_table "write_repo", force: :cascade do |t|
-    t.string "aggregate_uid"
+    t.string "aggregate_type"
+    t.string "aggregate_id"
     t.string "event_name"
     t.string "data"
     t.datetime "created_at"

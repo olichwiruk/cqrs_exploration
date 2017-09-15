@@ -5,75 +5,43 @@ module Infrastructure
     class UsersRepository
       class << self
         # write
-        def add_user(uid, user)
-          name = user['name']
-          email = user['email']
-
-          sql = <<-SQL
-            insert into users (uid, name, email, created_at, updated_at)
-            values ('#{uid}', '#{name}', '#{email}', '#{Time.now}', '#{Time.now}')
-          SQL
-
-          ActiveRecord::Base.connection.execute(sql)
+        def save(user)
+          Customer::Domain::User.new(
+            AR::User.create!(user.attributes)
+          )
         end
 
-        def update_user(uid, data)
-          changes = data.collect do |k, v|
-            "#{k} = '#{v}'"
-          end.join(', ')
-
-          sql = <<-SQL
-            update users
-            set #{changes}, updated_at = '#{Time.now}'
-            where uid = '#{uid}'
-          SQL
-
-          ActiveRecord::Base.connection.execute(sql)
+        def update(user)
+          Customer::Domain::User.new(
+            AR::User.update(user.id, user.attributes)
+          )
         end
 
         # read
         def all_users
-          sql = <<-SQL
-            select * from users
-          SQL
-
-          ActiveRecord::Base.connection.execute(sql)
+          AR::User.all
         end
 
         def find(id)
-          sql = <<-SQL
-            select * from users
-            where id = '#{id}'
-          SQL
+          Customer::Domain::User.new(
+            AR::User.find(id)
+          )
+        end
 
-          user_hash = ActiveRecord::Base.connection.execute(sql).first
-            .select { |k, _| k.is_a? String }
-
-          Customer::ReadModel::User.new(
-            ::User.new(user_hash)
+        def build(params)
+          Customer::Domain::User.new(
+            AR::User.new(params)
           )
         end
 
         # validate
         def available_email?(email)
-          sql = <<-SQL
-            select 1 from users
-            where email = '#{email}'
-          SQL
-
-          emails = ActiveRecord::Base.connection.execute(sql)
-          emails.empty?
+          !AR::User.exists?(email: email)
         end
 
         def available_email_for_user?(user_id, email)
-          sql = <<-SQL
-            select 1 from users
-            where email = '#{email}'
-            and id != '#{user_id}'
-          SQL
-
-          emails = ActiveRecord::Base.connection.execute(sql)
-          emails.empty?
+          user = AR::User.find_by(email: email)
+          user.nil? || user.id.eql?(user_id.to_i)
         end
       end
     end

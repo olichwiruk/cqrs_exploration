@@ -4,25 +4,35 @@ module Infrastructure
   module Repositories
     class OrdersRepository
       class << self
-        def add_order(uid, order)
-          user_uid = order['user_uid']
-
-          sql = <<-SQL
-            insert into orders (uid, user_uid, created_at, updated_at)
-            values ('#{uid}', '#{user_uid}', '#{Time.now}', '#{Time.now}')
-          SQL
-
-          ActiveRecord::Base.connection.execute(sql)
+        # write
+        def save(order)
+          Order::Domain::Order.new(
+            AR::Order.create!(order.attributes)
+          )
         end
 
-        def apply_coupon_to_order(order_id, value)
-          sql = <<-SQL
-            update orders
-            set discount = discount + #{value}, updated_at = '#{Time.now}'
-            where uid = '#{order_id}'
-          SQL
+        def apply_coupon(coupon)
+          order = AR::Order.find_by(uuid: coupon.order_uuid)
+          order.increment!(:discount, coupon.value)
+        end
 
-          ActiveRecord::Base.connection.execute(sql)
+        # read
+        def find(id)
+          Order::Domain::Order.new(
+            AR::Order.find(id)
+          )
+        end
+
+        def find_by(uuid:)
+          Order::Domain::Order.new(
+            AR::Order.find_by(uuid: uuid)
+          )
+        end
+
+        def build(params)
+          Order::Domain::Order.new(
+            AR::Order.new(params)
+          )
         end
       end
     end

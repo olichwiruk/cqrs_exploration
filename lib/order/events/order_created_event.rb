@@ -5,15 +5,12 @@ module Order
     class OrderCreatedEvent < Dry::Struct
       include Infrastructure::Types
 
-      attribute :aggregate_uid, Infrastructure::Types::String
-      attribute :user_uid, Infrastructure::Types::String
-      attribute :discount, Infrastructure::Types::Int
+      attribute :aggregate_type, Infrastructure::Types::String
+      attribute :aggregate_id, Infrastructure::Types::String
+      attribute :user_id, Infrastructure::Types::String
 
       def values
-        val = instance_values
-        val.delete('aggregate_uid')
-        val.delete('discount')
-        val
+        instance_values.without('aggregate_id', 'aggregate_type')
       end
     end
   end

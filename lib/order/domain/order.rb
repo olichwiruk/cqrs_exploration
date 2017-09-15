@@ -4,21 +4,48 @@ require 'securerandom'
 
 module Order
   module Domain
-    class Order
-      class << self
-        include Infrastructure::Entity
+    class Order < Disposable::Twin
+      include Infrastructure::Entity
 
-        def create_new_order(user_uid:, discount: 0)
-          apply_event(
-            Order::Events::OrderCreatedEvent.new(
-              aggregate_uid: SecureRandom.uuid,
-              user_uid: user_uid,
-              discount: discount
-            )
+      property :id
+      property :uuid
+      property :user_id
+      property :discount
+
+      def attributes
+        instance_variable_get(:@fields)
+      end
+
+      def create
+        apply_event(
+          ::Order::Events::OrderCreatedEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: SecureRandom.uuid,
+            user_id: user_id
           )
-        end
+        )
+        self
+      end
 
-        def on_order_created(event); end
+      def apply_coupon(coupon)
+        apply_event(
+          ::Order::Events::CouponAppliedEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: coupon.order_uuid,
+            value: coupon.value
+          )
+        )
+        coupon
+      end
+
+      # @api private
+      def on_order_created(event)
+        self.uuid = event.aggregate_id
+      end
+
+      # @api private
+      def on_coupon_applied(event)
+        self.discount += event.value
       end
     end
   end

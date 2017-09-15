@@ -5,13 +5,12 @@ module Order
     class CouponAppliedEvent < Dry::Struct
       include Infrastructure::Types
 
-      attribute :aggregate_uid, Infrastructure::Types::String
+      attribute :aggregate_type, Infrastructure::Types::String
+      attribute :aggregate_id, Infrastructure::Types::String
       attribute :value, Infrastructure::Types::Int
 
       def values
-        val = instance_values
-        val.delete('aggregate_uid')
-        val
+        instance_values.without('aggregate_id', 'aggregate_type')
       end
     end
   end
