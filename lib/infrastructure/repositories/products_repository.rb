@@ -11,6 +11,12 @@ module Infrastructure
           )
         end
 
+        def update(product)
+          Product::Domain::Product.new(
+            AR::Product.update(product.id, product.attributes)
+          )
+        end
+
         # read
         def all_products
           AR::Product.all
