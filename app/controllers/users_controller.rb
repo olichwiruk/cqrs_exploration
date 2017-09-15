@@ -7,7 +7,7 @@ class UsersController < ApplicationController
   def index
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/index.html.erb',
-      view_model: UsersListViewModel.new(
+      view_model: Users::UsersListViewModel.new(
         users: UsersRepo.all_users,
         current_user_id: session[:user_id]
       )
@@ -22,7 +22,7 @@ class UsersController < ApplicationController
   end
 
   def registration_view_model
-    @view_model ||= UserRegistrationViewModel.new(
+    @view_model ||= Users::UserRegistrationViewModel.new(
       user: UsersRepo.build(nil),
       csrf_token: form_authenticity_token
     )
@@ -62,7 +62,7 @@ class UsersController < ApplicationController
   end
 
   def edition_view_model
-    @view_model ||= UserRegistrationViewModel.new(
+    @view_model ||= Users::UserRegistrationViewModel.new(
       user: UsersRepo.find(params[:id]),
       csrf_token: form_authenticity_token
     )
@@ -97,7 +97,7 @@ class UsersController < ApplicationController
   def login_view
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
-      view_model: UserLoginViewModel.new(
+      view_model: Users::UserLoginViewModel.new(
         users: UsersRepo.all_users,
         csrf_token: form_authenticity_token
       )
