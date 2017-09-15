@@ -4,11 +4,12 @@ module Product
   module Domain
     class Product < Disposable::Twin
       include Infrastructure::Entity
+      feature Default
 
       property :id
       property :uuid
       property :name
-      property :quantity
+      property :quantity, default: 0
 
       def attributes
         instance_variable_get(:@fields)
