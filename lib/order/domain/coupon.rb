@@ -3,23 +3,12 @@
 module Order
   module Domain
     class Coupon
-      attr_reader :aggregate_uid
+      attr_reader :order_uuid
       attr_reader :value
 
-      class << self
-        include Infrastructure::Entity
-
-        def apply_coupon(aggregate_uid:, value:)
-          apply_event(
-            ::Order::Events::CouponAppliedEvent.new(
-              aggregate_uid: aggregate_uid,
-              value: value
-            )
-          )
-          self
-        end
-
-        def on_coupon_applied(event); end
+      def initialize(order_uuid:, value:)
+        @order_uuid = order_uuid
+        @value = value
       end
     end
   end

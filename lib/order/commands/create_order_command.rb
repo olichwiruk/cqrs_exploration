@@ -6,8 +6,7 @@ module Order
       attr_reader :params
 
       Validator = Dry::Validation.Schema do
-        required(:user_uid).filled
-        optional(:discount).filled(:int?, gt?: 0, lteq?: 100)
+        required(:user_id).filled
       end
 
       def initialize(params)

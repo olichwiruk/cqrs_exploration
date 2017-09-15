@@ -1,14 +1,16 @@
-<% if session[:user_id].nil? %>
-  <%= link_to 'Login', login_path %>
+<% if view_model.current_user_id.nil? %>
+  <a href='<%= login_path %>'>Login</a>
 <% else %>
-  <%= "Hi, #{session[:user_id]}!" %><br>
-  <%= link_to 'Logout', logout_path %>
+  <%= "Hi, #{view_model.current_user_id}!" %>
+  <br>
+  <a href='<%= logout_path %>'>Logout</a>
 <% end %>
 
 <h1>Users:</h1>
-<%= link_to 'New', new_user_path %><br>
-<%= flash[:errors] %><br>
-<% @users.each do |user| %>
-  <%= user['name'] %> | <%= user['email'] %>
- <%=link_to 'Edit', edit_user_path(user['id'])%> <br>
+<a href='<%= new_user_path %>'>New</a>
+<br>
+<% view_model.users.each do |user| %>
+  <%= user[:name] %> | <%= user[:email] %>
+  <a href='<%= edit_user_path(user[:id]) %>'>Edit</a>
+  <br>
 <% end %>

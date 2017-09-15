@@ -1,53 +1,58 @@
 # frozen_string_literal: true
 
-require 'infrastructure/entity'
-require 'customer/events/user_created_event'
-require 'customer/events/user_updated_event'
 require 'securerandom'
 
 module Customer
   module Domain
-    class User
-      attr_reader :id
-      attr_reader :uid
-      attr_reader :name
-      attr_reader :email
+    class User < Disposable::Twin
+      include Infrastructure::Entity
+      feature Changed
 
-      class << self
-        include Infrastructure::Entity
+      property :id
+      property :uuid
+      property :name
+      property :email
 
-        def create_new_user(user_params)
-          name = user_params['name']
-          email = user_params['email']
-          apply_event(
-            Customer::Events::UserCreatedEvent.new(
-              aggregate_uid: SecureRandom.uuid,
-              name: name,
-              email: email
-            )
+      def attributes
+        instance_variable_get(:@fields)
+      end
+
+      def create
+        apply_event(
+          Customer::Events::UserCreatedEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: SecureRandom.uuid,
+            name: name,
+            email: email
           )
-          self
-        end
+        )
+        self
+      end
 
-        def update_user(user_params)
-          uid = user_params['uid']
-          name = user_params['name']
-          email = user_params['email']
-          apply_event(
-            Customer::Events::UserUpdatedEvent.new(
-              aggregate_uid: uid,
-              name: name,
-              email: email
-            )
-          )
-          self
-        end
+      def update(user_params)
+        new_name = user_params['name']
+        new_email = user_params['email']
+        event = Customer::Events::UserUpdatedEvent.new(
+          aggregate_type: self.class.to_s.split('::').last.downcase,
+          aggregate_id: uuid,
+          name: update_attr(name, new_name),
+          email: update_attr(email, new_email)
+        )
+        apply_event(event) unless event.values.empty?
+        self
+      end
 
-        def on_user_created(event)
-          @uid = event.aggregate_uid
-        end
+      def on_user_created(event)
+        self.uuid = event.aggregate_id
+      end
 
-        def on_user_updated(event); end
+      def on_user_updated(event)
+        update_from_hash(event.values)
+      end
+
+      # @api private
+      def update_attr(attr, new_attr)
+        attr.eql?(new_attr) ? nil : new_attr
       end
     end
   end

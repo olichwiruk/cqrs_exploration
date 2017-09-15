@@ -4,16 +4,17 @@ module Order
   module CommandHandlers
     class CreateOrderCommandHandler
       M = Dry::Monads
+      OrdersRepo = Infrastructure::Repositories::OrdersRepository
 
       class << self
         def execute(command)
           validation_result = command.validate
-
           return M.Left(validation_result.errors) unless validation_result.success?
 
-          order = Order::Domain::Order.create_new_order(validation_result.output)
-
-          M.Right(order)
+          order = OrdersRepo.build(validation_result.output)
+          order.create
+          OrdersRepo.save(order)
+          M.Right(true)
         end
       end
     end

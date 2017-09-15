@@ -4,6 +4,7 @@ module Order
   module CommandHandlers
     class ApplyCouponCommandHandler
       M = Dry::Monads
+      OrdersRepo = Infrastructure::Repositories::OrdersRepository
 
       class << self
         def execute(command)
@@ -11,9 +12,15 @@ module Order
 
           return M.Left(validation_result.errors) unless validation_result.success?
 
-          discount = Order::Domain::Coupon.apply_coupon(validation_result.output)
+          order_uuid = validation_result.output[:aggregate_id]
+          value = validation_result.output[:value]
 
-          M.Right(discount)
+          order = OrdersRepo.find_by(uuid: order_uuid)
+          coupon = Order::Domain::Coupon.new(order_uuid: order_uuid, value: value)
+          order.apply_coupon(coupon)
+          OrdersRepo.apply_coupon(coupon)
+
+          M.Right(true)
         end
       end
     end

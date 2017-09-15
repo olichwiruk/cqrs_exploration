@@ -3,9 +3,10 @@
 
 <% f = form(
     view_model.user,
-    create_user_path,
+    users_path,
     csrf_token: view_model.csrf_token,
     csrf_token_name: 'authenticity_token',
+    errors: [],
     path_prefix: 'user'
   ) %>
   <%= f.start %>
