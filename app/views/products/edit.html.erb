@@ -1,0 +1,25 @@
+<h1>Edit product:</h1>
+<%= view_model.errors unless view_model.errors.empty? %>
+
+<% f = form(
+    view_model.product,
+    product_path(id: view_model.product.id),
+    method: 'put',
+    csrf_token: view_model.csrf_token,
+    csrf_token_name: 'authenticity_token',
+    errors: [],
+    path_prefix: 'product'
+  ) %>
+  <%= f.start %>
+  <%= f.label :name %>
+  <%= f.input :name %>
+  <br>
+  <%= f.label :quantity %>
+  <%= f.input :quantity, type: 'number', value: view_model.product.quantity %>
+  <br>
+  <%= f.label :price %>
+  <%= f.input :price, type: 'number', value: view_model.product.price %>
+  <br><br>
+  <%= f.submit %>
+<%= f.end %>
+

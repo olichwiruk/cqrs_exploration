@@ -11,8 +11,9 @@
 <a href='<%= new_product_path %>'>New</a>
 <br>
 <% view_model.products.each do |product| %>
+  <a href='<%= edit_product_path(product[:id]) %>'>Edit</a> -
   <%= product[:name] %> |
-  <%= product[:quantity] %> |
-  <%= product[:price] %>
+  <%= product[:quantity] %> pcs. |
+  <%= product[:price] %> USD
   <br>
 <% end %>
