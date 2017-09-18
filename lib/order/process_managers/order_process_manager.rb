@@ -32,7 +32,6 @@ module Order
 
       def coupon_applied(_event)
         self.state = StateValues::COUPON_APPLIED
-        self.completed = true
       end
 
       # @api private
