@@ -16,9 +16,9 @@ module Order
           value = validation_result.output[:value]
 
           order = OrdersRepo.find_by(uuid: order_uuid)
-          coupon = Order::Domain::Coupon.new(order_uuid: order_uuid, value: value)
+          coupon = Order::Domain::Coupon.new(value: value)
           order.apply_coupon(coupon)
-          OrdersRepo.apply_coupon(coupon)
+          OrdersRepo.apply_coupon(order: order, coupon: coupon)
 
           M.Right(true)
         end

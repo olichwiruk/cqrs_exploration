@@ -31,7 +31,7 @@ module Order
             value: coupon.value
           )
         )
-        coupon
+        self
       end
 
       # @api private
