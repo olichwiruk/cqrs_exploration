@@ -3,37 +3,10 @@
 module Infrastructure
   module Repositories
     class UsersRepository
+      extend Infrastructure::Repositories::Repository
+      @bounded_context = 'Customer'
+
       class << self
-        # write
-        def save(user)
-          Customer::Domain::User.new(
-            AR::User.create!(user.attributes)
-          )
-        end
-
-        def update(user)
-          Customer::Domain::User.new(
-            AR::User.update(user.id, user.attributes)
-          )
-        end
-
-        # read
-        def all_users
-          AR::User.all
-        end
-
-        def find(id)
-          Customer::Domain::User.new(
-            AR::User.find(id)
-          )
-        end
-
-        def build(params)
-          Customer::Domain::User.new(
-            AR::User.new(params)
-          )
-        end
-
         # validate
         def available_email?(email)
           !AR::User.exists?(email: email)
