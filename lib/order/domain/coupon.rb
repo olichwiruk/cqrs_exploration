@@ -3,11 +3,9 @@
 module Order
   module Domain
     class Coupon
-      attr_reader :order_uuid
       attr_reader :value
 
-      def initialize(order_uuid:, value:)
-        @order_uuid = order_uuid
+      def initialize(value:)
         @value = value
       end
     end
