@@ -9,7 +9,8 @@ class ProductsController < ApplicationController
       template: 'app/views/products/index.html.erb',
       view_model: Products::ProductsListViewModel.new(
         products: ProductsRepo.all_products,
-        current_user_id: session[:user_id]
+        current_user_id: session[:user_id],
+        csrf_token: form_authenticity_token
       )
     ).html_safe
   end
@@ -29,7 +30,7 @@ class ProductsController < ApplicationController
   end
 
   def create
-    result = AddProductService.call(params[:product].permit!)
+    result = Product::Services::AddProductService.call(params[:product].permit!)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -70,7 +71,7 @@ class ProductsController < ApplicationController
   end
 
   def update
-    result = UpdateProductService.call(params)
+    result = Product::Services::UpdateProductService.call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
