@@ -1,3 +1,4 @@
 en:
   errors:
     email?: email invalid
+    positive_values?: values must be positive
