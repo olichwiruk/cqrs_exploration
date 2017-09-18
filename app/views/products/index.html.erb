@@ -10,10 +10,24 @@
 <h1>Products:</h1>
 <a href='<%= new_product_path %>'>New</a>
 <br>
-<% view_model.products.each do |product| %>
-  <a href='<%= edit_product_path(product[:id]) %>'>Edit</a> -
-  <%= product[:name] %> |
-  <%= product[:quantity] %> pcs. |
-  <%= product[:price] %> USD
-  <br>
-<% end %>
+<% f = form(
+    view_model.basket_hash,
+    basket_index_path,
+    csrf_token: view_model.csrf_token,
+    csrf_token_name: 'authenticity_token',
+    errors: [],
+    path_prefix: 'products'
+  ) %>
+  <%= f.start %>
+  <%= view_model.errors unless view_model.errors.empty? %><br>
+  <% view_model.products.each do |product| %>
+    <a href='<%= edit_product_path(product[:id]) %>'>Edit</a> -
+    <%= product[:name] %> |
+    <%= product[:quantity] %> pcs. |
+    <%= product[:price] %> USD
+    <%= f.input product[:id].to_s.to_sym, type: 'number', value: view_model.basket_hash[product[:id].to_s] unless view_model.current_user_id.nil? %>
+    <br>
+  <% end %>
+  <br><br>
+  <%= f.submit unless view_model.current_user_id.nil? %>
+<%= f.end %>
