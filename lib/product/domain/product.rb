@@ -12,10 +12,6 @@ module Product
       property :quantity, default: 0
       property :price
 
-      def attributes
-        instance_variable_get(:@fields)
-      end
-
       def create
         apply_event(
           ::Product::Events::ProductCreatedEvent.new(

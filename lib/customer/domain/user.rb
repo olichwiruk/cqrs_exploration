@@ -13,10 +13,6 @@ module Customer
       property :name
       property :email
 
-      def attributes
-        instance_variable_get(:@fields)
-      end
-
       def create
         apply_event(
           Customer::Events::UserCreatedEvent.new(

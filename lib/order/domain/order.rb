@@ -12,10 +12,6 @@ module Order
       property :user_id
       property :discount
 
-      def attributes
-        instance_variable_get(:@fields)
-      end
-
       def create
         apply_event(
           ::Order::Events::OrderCreatedEvent.new(
@@ -31,7 +27,7 @@ module Order
         apply_event(
           ::Order::Events::CouponAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_id: coupon.order_uuid,
+            aggregate_id: uuid,
             value: coupon.value
           )
         )
