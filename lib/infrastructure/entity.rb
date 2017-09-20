@@ -11,14 +11,8 @@ module Infrastructure
     end
 
     def apply_event(event)
-      event_to_store = Infrastructure::Event.new(
-        aggregate_type: event.aggregate_type,
-        name: event_name(event),
-        aggregate_id: event.aggregate_id,
-        data: event.values
-      )
       do_apply event
-      applied_events << event_to_store
+      applied_events << event
     end
 
     def commit
@@ -41,13 +35,20 @@ module Infrastructure
 
     # @api private
     def save(event)
-      Infrastructure::WriteRepo.add_event(event)
+      event_to_store = Infrastructure::Event.new(
+        aggregate_type: event.aggregate_type,
+        name: event_name(event),
+        aggregate_id: event.aggregate_id,
+        data: event.values
+      )
+      Infrastructure::WriteRepo.add_event(event_to_store)
     end
 
     # @api private
     def publish(event)
-      handler = Infrastructure::EventBus.handler(event.name)
-      handler.__send__(event.name, event) unless handler.nil?
+      name = event_name(event)
+      handler = Infrastructure::EventBus.handler(name)
+      handler.__send__(name, event) unless handler.nil?
     end
   end
 end

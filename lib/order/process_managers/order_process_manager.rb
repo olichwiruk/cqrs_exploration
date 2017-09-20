@@ -9,7 +9,7 @@ module Order
 
       module StateValues
         NOT_STARTED = 0
-        ORDER_CREATED = 1
+        ORDER_INITIALIZED = 1
         COUPON_APPLIED = 2
       end
 
@@ -21,11 +21,12 @@ module Order
       def order_created(event)
         raise unless state.to_i == StateValues::NOT_STARTED
 
-        self.state = StateValues::ORDER_CREATED
+        self.state = StateValues::ORDER_INITIALIZED
 
+        return if event.discount.zero?
         command = Order::Commands::ApplyCouponCommand.new(
           aggregate_id: event.aggregate_id,
-          value: 10
+          value: event.discount
         )
         add_command(command)
       end
