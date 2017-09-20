@@ -7,6 +7,7 @@ module Order
 
       Validator = Dry::Validation.Schema do
         required(:user_id).filled
+        optional(:discount).filled(:int?, gt?: 0, lteq?: 100)
       end
 
       def initialize(params)
