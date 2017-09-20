@@ -14,9 +14,11 @@ module Infrastructure
 
         # read
         def find_current(user_id)
-          Order::Domain::Order.new(
+          order = Order::Domain::Order.new(
             AR::Order.where(user_id: user_id).last
           )
+          order unless Infrastructure::Repositories::OrderProcessesRepository
+              .load(order.uuid).completed
         end
       end
     end

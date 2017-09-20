@@ -17,6 +17,13 @@ module Order
           end
 
           order = OrdersRepo.find_current(params[:user_id])
+          if order.nil?
+            command = Order::Commands::CreateOrderCommand.new(
+              user_id: params[:user_id]
+            )
+            result = Infrastructure::CommandBus.send(command)
+            order = OrdersRepo.find_current(params[:user_id])
+          end
 
           basket.each do |k, v|
             line = LinesRepo.build(
