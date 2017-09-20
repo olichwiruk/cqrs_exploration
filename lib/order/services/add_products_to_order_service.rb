@@ -5,14 +5,34 @@ module Order
     class AddProductsToOrderService
       class << self
         M = Dry::Monads
+        OrdersRepo = Infrastructure::Repositories::OrdersRepository
+        LinesRepo = Infrastructure::Repositories::OrderLinesRepository
 
         def call(params)
+          result = validate(params)
+          return result unless result.success?
+
           basket = params.to_h[:products].reject do |_, v|
             v.empty?
           end
-          p Infrastructure::Repositories::OrdersRepository.find_current(1)
-          p basket
-          validate(params)
+
+          order = OrdersRepo.find_current(params[:user_id])
+
+          basket.each do |k, v|
+            line = LinesRepo.build(
+              order_id: order.id,
+              product_id: k.to_i,
+              quantity: v.to_i
+            )
+            line_db = AR::OrderLine.find_by(order_id: line.order_id, product_id: line.product_id)
+            if line_db.nil?
+              LinesRepo.save(line)
+            else
+              line_db.increment!(:quantity, line.quantity)
+            end
+          end
+
+          result
         end
 
         # @api private

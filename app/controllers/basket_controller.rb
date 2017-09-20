@@ -6,7 +6,11 @@ class BasketController < ApplicationController
   def index; end
 
   def create
-    result = Order::Services::AddProductsToOrderService.call(params.permit!)
+    result = Order::Services::AddProductsToOrderService.call(
+      params.merge(
+        user_id: session[:user_id].to_i
+      ).permit!
+    )
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
