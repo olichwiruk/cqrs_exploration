@@ -8,7 +8,7 @@ class ProductsController < ApplicationController
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/products/index.html.erb',
       view_model: Products::ProductsListViewModel.new(
-        products: ProductsRepo.all_products,
+        products: ProductsRepo.all,
         current_user_id: session[:user_id],
         csrf_token: form_authenticity_token
       )
@@ -24,7 +24,7 @@ class ProductsController < ApplicationController
 
   def add_product_view_model
     @view_model ||= Products::AddProductViewModel.new(
-      product: ProductsRepo.build(nil),
+      product: Product::ReadModels::Product.new,
       csrf_token: form_authenticity_token
     )
   end
@@ -39,10 +39,8 @@ class ProductsController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_add_product_view_model(
-          product: ProductsRepo.build(
-            name: params[:product][:name],
-            quantity: params[:product][:quantity],
-            price: params[:product][:price]
+          product: Product::ReadModels::Product.new(
+            params[:product]
           ),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -65,7 +63,9 @@ class ProductsController < ApplicationController
 
   def edition_view_model
     @view_model ||= Products::AddProductViewModel.new(
-      product: ProductsRepo.find(params[:id]),
+      product: Product::ReadModels::Product.new(
+        AR::Product.find(params[:id]).attributes
+      ),
       csrf_token: form_authenticity_token
     )
   end
@@ -80,8 +80,9 @@ class ProductsController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_edition_view_model(
-          product: ProductsRepo.find(params[:id])
-            .update_from_hash(params[:product]),
+          product: Product::ReadModels::Product.new(
+            params[:product].merge(id: params[:id]).permit!
+          ),
           csrf_token: form_authenticity_token,
           errors: errors
         )

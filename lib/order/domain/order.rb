@@ -12,15 +12,16 @@ module Order
       property :user_id
       property :discount
 
-      def create
-        apply_event(
+      def self.initialize(model)
+        order = new(model)
+        order.apply_event(
           ::Order::Events::OrderCreatedEvent.new(
-            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_type: to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
-            user_id: user_id
+            user_id: order.user_id
           )
         )
-        self
+        order
       end
 
       def apply_coupon(coupon)

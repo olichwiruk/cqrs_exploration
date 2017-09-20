@@ -8,7 +8,7 @@ class UsersController < ApplicationController
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/index.html.erb',
       view_model: Users::UsersListViewModel.new(
-        users: UsersRepo.all_users,
+        users: UsersRepo.all,
         current_user_id: session[:user_id]
       )
     ).html_safe
@@ -23,7 +23,7 @@ class UsersController < ApplicationController
 
   def registration_view_model
     @view_model ||= Users::UserRegistrationViewModel.new(
-      user: UsersRepo.build(nil),
+      user: Customer::ReadModels::User.new,
       csrf_token: form_authenticity_token
     )
   end
@@ -38,9 +38,8 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_registration_view_model(
-          user: UsersRepo.build(
-            name: params[:user][:name],
-            email: params[:user][:email]
+          user: Customer::ReadModels::User.new(
+            params[:user]
           ),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -63,7 +62,9 @@ class UsersController < ApplicationController
 
   def edition_view_model
     @view_model ||= Users::UserRegistrationViewModel.new(
-      user: UsersRepo.find(params[:id]),
+      user: Customer::ReadModels::User.new(
+        AR::User.find(params[:id]).attributes
+      ),
       csrf_token: form_authenticity_token
     )
   end
@@ -78,8 +79,9 @@ class UsersController < ApplicationController
 
       handler.on_failure = proc do |errors|
         update_edition_view_model(
-          user: UsersRepo.find(params[:id])
-            .update_from_hash(params[:user]),
+          user: Customer::ReadModels::User.new(
+            params[:user].merge(id: params[:id]).permit!
+          ),
           csrf_token: form_authenticity_token,
           errors: errors
         )
@@ -98,7 +100,7 @@ class UsersController < ApplicationController
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
       view_model: Users::UserLoginViewModel.new(
-        users: UsersRepo.all_users,
+        users: UsersRepo.all,
         csrf_token: form_authenticity_token
       )
     ).html_safe

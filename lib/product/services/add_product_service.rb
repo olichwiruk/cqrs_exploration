@@ -14,7 +14,6 @@ module Product
           return params_validation unless params_validation.success?
 
           product = ProductsRepo.build(params)
-          product.create
           ProductsRepo.save(product)
 
           params_validation

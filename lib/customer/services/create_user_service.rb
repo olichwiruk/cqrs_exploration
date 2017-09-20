@@ -13,7 +13,6 @@ module Customer
 
           if email_validation.success? && params_validation.success?
             user = UsersRepo.build(params)
-            user.create
 
             command = Order::Commands::CreateOrderCommand.new(
               user_id: UsersRepo.save(user).id

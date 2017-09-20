@@ -13,16 +13,17 @@ module Customer
       property :name
       property :email
 
-      def create
-        apply_event(
+      def self.initialize(model)
+        user = new(model)
+        user.apply_event(
           Customer::Events::UserCreatedEvent.new(
-            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_type: to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
-            name: name,
-            email: email
+            name: user.name,
+            email: user.email
           )
         )
-        self
+        user
       end
 
       def update(user_params)

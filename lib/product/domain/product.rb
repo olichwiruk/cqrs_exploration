@@ -9,20 +9,21 @@ module Product
       property :id
       property :uuid
       property :name
-      property :quantity, default: 0
+      property :quantity
       property :price
 
-      def create
-        apply_event(
+      def self.initialize(model)
+        product = new(model)
+        product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
-            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_type: to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
-            name: name,
-            quantity: quantity,
-            price: price
+            name: product.name,
+            quantity: product.quantity,
+            price: product.price
           )
         )
-        self
+        product
       end
 
       def update(product_params)

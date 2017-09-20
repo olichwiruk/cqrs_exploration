@@ -12,7 +12,6 @@ module Order
           return M.Left(validation_result.errors) unless validation_result.success?
 
           order = OrdersRepo.build(validation_result.output)
-          order.create
           OrdersRepo.save(order)
           M.Right(true)
         end
