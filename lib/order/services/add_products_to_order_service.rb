@@ -25,20 +25,11 @@ module Order
             order = OrdersRepo.find_current(params[:user_id])
           end
 
-          basket.each do |k, v|
-            line = LinesRepo.build(
-              order_id: order.id,
-              product_id: k.to_i,
-              quantity: v.to_i
-            )
-            line_db = AR::OrderLine.find_by(order_id: line.order_id, product_id: line.product_id)
-            if line_db.nil?
-              LinesRepo.save(line)
-            else
-              line_db.increment!(:quantity, line.quantity)
-            end
-          end
-
+          command = Order::Commands::AddProductsCommand.new(
+            order_id: order.id,
+            basket: basket
+          )
+          Infrastructure::CommandBus.send(command)
           result
         end
 
