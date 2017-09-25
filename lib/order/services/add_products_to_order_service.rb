@@ -6,31 +6,35 @@ module Order
       class << self
         M = Dry::Monads
         OrdersRepo = Infrastructure::Repositories::OrdersRepository
+        ProductsRepo = Infrastructure::Repositories::ProductsRepository
         LinesRepo = Infrastructure::Repositories::OrderLinesRepository
 
         def call(params)
-          result = validate(params)
-          return result unless result.success?
-
           basket = params.to_h[:products].reject do |_, v|
             v.empty?
           end
 
-          order = OrdersRepo.find_current(params[:user_id])
-          if order.nil?
-            command = Order::Commands::CreateOrderCommand.new(
-              user_id: params[:user_id]
-            )
-            result = Infrastructure::CommandBus.send(command)
-            order = OrdersRepo.find_current(params[:user_id])
-          end
+          params_validation = validate(params)
+          quantity_validation = validate_quantity_availability(basket)
+          if params_validation.success? && quantity_validation.success?
 
-          command = Order::Commands::AddProductsCommand.new(
-            order_id: order.id,
-            basket: basket
-          )
-          Infrastructure::CommandBus.send(command)
-          result
+            order = OrdersRepo.find_current(params[:user_id])
+            if order.nil?
+              command = Order::Commands::CreateOrderCommand.new(
+                user_id: params[:user_id]
+              )
+              Infrastructure::CommandBus.send(command)
+              order = OrdersRepo.find_current(params[:user_id])
+            end
+
+            command = Order::Commands::AddProductsCommand.new(
+              order_id: order.id,
+              basket: basket
+            )
+            Infrastructure::CommandBus.send(command)
+          else
+            params_validation.success? ? quantity_validation : params_validation
+          end
         end
 
         # @api private
@@ -54,6 +58,17 @@ module Order
           else
             M.Left(validator_result.errors)
           end
+        end
+
+        # @api private
+        def validate_quantity_availability(basket)
+          result = M.Right(true)
+          basket.each do |id, quantity|
+            unless ProductsRepo.available_quantity?(id, quantity)
+              result = M.Left(id => ['out of stock'])
+            end
+          end
+          result
         end
       end
     end
