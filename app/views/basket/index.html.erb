@@ -1,1 +1,11 @@
 <h1>Basket</h1>
+<% view_model.products.each do |product| %>
+  <a href='<%= product_path(product['id']) %>'><%= product['name'] %></a>
+  <%= product['quantity'] %> pcs.
+  = <del><%= product['quantity'] * product['price'] %> USD</del>
+  <%= product['quantity'] * product['price'] * (1 - view_model.discount / 100.0) %> USD
+  <br>
+<% end %>
+<br>
+discount: <%= view_model.discount %>%<br>
+total: <%= view_model.total %> USD

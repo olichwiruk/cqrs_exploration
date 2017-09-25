@@ -21,6 +21,16 @@ module Infrastructure
           order.commit
         end
 
+        def basket(order_id:)
+          products = []
+          AR::OrderLine.where(order_id: order_id).each do |line|
+            products << Product::Domain::Product.new(
+              AR::Product.find(line.product_id)
+            ).instance_variable_get(:@fields).merge('quantity' => line.quantity)
+          end
+          products
+        end
+
         def build(params)
           Order::Domain::OrderLine.new(
             AR::OrderLine.new(params)
