@@ -41,7 +41,7 @@ class BasketController < ApplicationController
         render html: Infrastructure::TemplateRenderer.render(
           template: 'app/views/products/index.html.erb',
           view_model: Products::ProductsListViewModel.new(
-            products: ProductsRepo.all_products,
+            products: ProductsRepo.all,
             basket_hash: params[:products],
             current_user_id: session[:user_id],
             csrf_token: form_authenticity_token,
