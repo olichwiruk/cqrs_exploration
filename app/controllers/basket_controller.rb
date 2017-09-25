@@ -3,7 +3,27 @@
 class BasketController < ApplicationController
   include Infrastructure::ResultHandler
 
-  def index; end
+  OrdersRepo = Infrastructure::Repositories::OrdersRepository
+  ProductsRepo = Infrastructure::Repositories::ProductsRepository
+  OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
+
+  def index
+    user_id = session[:user_id]
+    order = OrdersRepo.find_current(user_id)
+    products = OrderLinesRepo.basket(order_id: order.id)
+
+    total = products.sum { |p| p['price'] * p['quantity'] } * (1 - order.discount / 100.0)
+
+    render html: Infrastructure::TemplateRenderer.render(
+      template: 'app/views/basket/index.html.erb',
+      view_model: Basket::BasketViewModel.new(
+        products: products,
+        discount: order.discount,
+        total: total,
+        csrf_token: form_authenticity_token
+      )
+    ).html_safe
+  end
 
   def create
     result = Order::Services::AddProductsToOrderService.call(
@@ -21,7 +41,7 @@ class BasketController < ApplicationController
         render html: Infrastructure::TemplateRenderer.render(
           template: 'app/views/products/index.html.erb',
           view_model: Products::ProductsListViewModel.new(
-            products: Infrastructure::Repositories::ProductsRepository.all_products,
+            products: ProductsRepo.all_products,
             basket_hash: params[:products],
             current_user_id: session[:user_id],
             csrf_token: form_authenticity_token,
