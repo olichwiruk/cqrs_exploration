@@ -36,6 +36,17 @@ module Order
         self
       end
 
+      def add_products(products)
+        apply_event(
+          ::Order::Events::ProductsAddedEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: uuid,
+            products: products
+          )
+        )
+        self
+      end
+
       # @api private
       def on_order_created(event)
         self.uuid = event.aggregate_id
@@ -45,6 +56,9 @@ module Order
       def on_coupon_applied(event)
         self.discount += event.value
       end
+
+      # @api private
+      def on_products_added(event); end
     end
   end
 end
