@@ -2,6 +2,7 @@
   <a href='<%= login_path %>'>Login</a>
 <% else %>
   <%= "Hi, #{view_model.current_user_id}!" %>
+  <a href='<%= basket_index_path %>'>Basket</a>
   <br>
   <a href='<%= logout_path %>'>Logout</a>
 <% end %>
