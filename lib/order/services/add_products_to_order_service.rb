@@ -14,27 +14,43 @@ module Order
             v.empty?
           end
 
-          params_validation = validate(params)
-          quantity_validation = validate_quantity_availability(basket)
-          if params_validation.success? && quantity_validation.success?
+          if valid?(params, basket)
+            on_success(params, basket)
+          else
+            on_failure(params, basket)
+          end
+        end
 
-            order = OrdersRepo.find_current(params[:user_id])
-            if order.nil?
-              command = Order::Commands::CreateOrderCommand.new(
-                user_id: params[:user_id]
-              )
-              Infrastructure::CommandBus.send(command)
-              order = OrdersRepo.find_current(params[:user_id])
-            end
-
-            command = Order::Commands::AddProductsCommand.new(
-              order_id: order.id,
-              basket: basket
+        # @api private
+        def on_success(params, basket)
+          order = OrdersRepo.find_current(params[:user_id])
+          if order.nil?
+            command = Order::Commands::CreateOrderCommand.new(
+              user_id: params[:user_id]
             )
             Infrastructure::CommandBus.send(command)
-          else
-            params_validation.success? ? quantity_validation : params_validation
+            order = OrdersRepo.find_current(params[:user_id])
           end
+
+          command = Order::Commands::AddProductsCommand.new(
+            order_id: order.id,
+            basket: basket
+          )
+          Infrastructure::CommandBus.send(command)
+        end
+
+        # @api private
+        def on_failure(params, basket)
+          if validate(params).success?
+            validate_quantity_availability(basket)
+          else
+            validate(params)
+          end
+        end
+
+        # @api private
+        def valid?(params, basket)
+          validate(params).success? && validate_quantity_availability(basket).success?
         end
 
         # @api private

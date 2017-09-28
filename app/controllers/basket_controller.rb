@@ -5,21 +5,28 @@ class BasketController < ApplicationController
 
   OrdersRepo = Infrastructure::Repositories::OrdersRepository
   ProductsRepo = Infrastructure::Repositories::ProductsRepository
-  OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
+  BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
 
   def index
     user_id = session[:user_id]
     order = OrdersRepo.find_current(user_id)
-    products = OrderLinesRepo.basket(order_id: order.id)
-
-    total = products.sum { |p| p['price'] * p['quantity'] } * (1 - order.discount / 100.0)
+    basket = BasketsRepo.find_by(order_id: order.id)
+    products = []
+    unless basket&.products.nil?
+      basket.products.each do |id, quantity|
+        products << ProductsRepo.find(id)
+          .instance_variable_get(:@fields)
+          .merge('quantity' => quantity)
+      end
+      total = basket.total_price * (1 - basket.discount / 100.0)
+    end
 
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/basket/index.html.erb',
       view_model: Basket::BasketViewModel.new(
         products: products,
-        discount: order.discount,
-        total: total,
+        discount: basket.discount,
+        total: total || 0,
         csrf_token: form_authenticity_token
       )
     ).html_safe

@@ -35,6 +35,8 @@ module Order
         self.state = StateValues::COUPON_APPLIED
       end
 
+      def products_added(_event); end
+
       # @api private
       def add_command(command)
         commands << command

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateOrderLines < ActiveRecord::Migration[5.1]
   def change
     create_table :order_lines do |t|
@@ -6,6 +8,6 @@ class CreateOrderLines < ActiveRecord::Migration[5.1]
       t.integer :quantity
     end
 
-    add_index(:order_lines, [:order_id, :product_id])
+    add_index(:order_lines, %i[order_id product_id])
   end
 end
