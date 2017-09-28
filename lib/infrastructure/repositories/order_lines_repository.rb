@@ -11,24 +11,18 @@ module Infrastructure
               product_id: k.to_i,
               quantity: v.to_i
             )
-            line_db = AR::OrderLine.find_by(order_id: line.order_id, product_id: line.product_id)
+            line_db = AR::OrderLine.find_by(
+              order_id: order.id,
+              product_id: k.to_i
+            )
             if line_db.nil?
               AR::OrderLine.create!(line.instance_variable_get(:@fields))
             else
               line_db.increment!(:quantity, line.quantity)
             end
           end
-          order.commit
-        end
 
-        def basket(order_id:)
-          products = []
-          AR::OrderLine.where(order_id: order_id).each do |line|
-            products << Product::Domain::Product.new(
-              AR::Product.find(line.product_id)
-            ).instance_variable_get(:@fields).merge('quantity' => line.quantity)
-          end
-          products
+          order.commit
         end
 
         def build(params)

@@ -17,6 +17,12 @@ module Order
         save(pm)
       end
 
+      def products_added(event)
+        pm = OrderProcessesRepo.load(event.aggregate_id)
+        pm.products_added(event)
+        save(pm)
+      end
+
       # @api private
       def save(pm)
         OrderProcessesRepo.save(pm)
