@@ -47,8 +47,12 @@ module Infrastructure
     # @api private
     def publish(event)
       name = event_name(event)
-      handler = Infrastructure::EventBus.handler(name)
-      handler.__send__(name, event) unless handler.nil?
+      handlers = Infrastructure::EventBus.handlers(name)
+      return if handlers.nil?
+
+      handlers.each do |handler|
+        handler.__send__(name, event)
+      end
     end
   end
 end
