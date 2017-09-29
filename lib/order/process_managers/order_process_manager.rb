@@ -37,6 +37,8 @@ module Order
 
       def products_added(_event); end
 
+      def order_changed(event); end
+
       # @api private
       def add_command(command)
         commands << command
