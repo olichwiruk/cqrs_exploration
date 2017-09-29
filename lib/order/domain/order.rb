@@ -47,6 +47,16 @@ module Order
         self
       end
 
+      def change_order(products)
+        apply_event(
+          ::Order::Events::OrderChangedEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: uuid,
+            products: products
+          )
+        )
+      end
+
       # @api private
       def on_order_created(event)
         self.uuid = event.aggregate_id
@@ -59,6 +69,9 @@ module Order
 
       # @api private
       def on_products_added(event); end
+
+      # @api private
+      def on_order_changed(event); end
     end
   end
 end

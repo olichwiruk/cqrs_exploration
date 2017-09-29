@@ -8,7 +8,9 @@ module Infrastructure
       'Order::Commands::ApplyCouponCommand' =>
         'Order::CommandHandlers::ApplyCouponCommandHandler',
       'Order::Commands::AddProductsCommand' =>
-        'Order::CommandHandlers::AddProductsCommandHandler'
+        'Order::CommandHandlers::AddProductsCommandHandler',
+      'Order::Commands::ChangeOrderCommand' =>
+        'Order::CommandHandlers::ChangeOrderCommandHandler'
     }
 
     def self.send(command)
