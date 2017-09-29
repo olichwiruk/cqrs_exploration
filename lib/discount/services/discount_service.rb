@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 
-module Order
+module Discount
   module Services
     class DiscountService
       def initialize(order)
         @order = order
-        @discount = 0
+        @discount_id = 0
       end
 
-      def discount
+      def discount_id
         first_order_discount
-        @discount
+        @discount_id
       end
 
       def first_order_discount
-        @discount = 10 unless AR::Order.exists?(user_id: @order.user_id)
+        unless AR::Order.exists?(user_id: @order.user_id)
+          @discount_id = AR::Discount.find_by(name: 'first_order_coupon').id
+        end
       end
     end
   end

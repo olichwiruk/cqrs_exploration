@@ -7,7 +7,7 @@ module Order
 
       attribute :aggregate_type, Infrastructure::Types::String
       attribute :aggregate_id, Infrastructure::Types::String
-      attribute :value, Infrastructure::Types::Int
+      attribute :discount_id, Infrastructure::Types::Int
 
       def values
         instance_values.without('aggregate_id', 'aggregate_type')
