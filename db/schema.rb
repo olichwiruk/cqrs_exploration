@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170926120301) do
+ActiveRecord::Schema.define(version: 20170929094923) do
+
+  create_table "discounts", force: :cascade do |t|
+    t.string "name"
+    t.integer "value"
+  end
+
+  create_table "order_discounts", force: :cascade do |t|
+    t.integer "order_id"
+    t.integer "discount_id"
+  end
 
   create_table "order_lines", force: :cascade do |t|
     t.integer "order_id"
@@ -29,7 +39,6 @@ ActiveRecord::Schema.define(version: 20170926120301) do
   create_table "orders", force: :cascade do |t|
     t.string "uuid"
     t.string "user_id"
-    t.integer "discount", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

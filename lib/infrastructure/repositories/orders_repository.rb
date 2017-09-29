@@ -7,11 +7,6 @@ module Infrastructure
       @bounded_context = 'Order'
 
       class << self
-        def apply_coupon(order:, coupon:)
-          AR::Order.find(order.id).increment!(:discount, coupon.value)
-          order.commit
-        end
-
         # read
         def find_current(user_id)
           order = Order::Domain::Order.new(

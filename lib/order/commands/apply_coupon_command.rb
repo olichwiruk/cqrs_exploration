@@ -7,7 +7,7 @@ module Order
 
       Validator = Dry::Validation.Schema do
         required(:aggregate_id).filled
-        required(:value).filled(:int?, gt?: 0, lteq?: 100)
+        required(:discount_id).filled
       end
 
       def initialize(params)

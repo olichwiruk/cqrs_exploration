@@ -10,7 +10,6 @@ module Order
       property :id
       property :uuid
       property :user_id
-      property :discount
 
       def self.initialize(model)
         order = new(model)
@@ -19,18 +18,18 @@ module Order
             aggregate_type: to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
             user_id: order.user_id,
-            discount: ::Order::Services::DiscountService.new(order).discount
+            discount_id: ::Discount::Services::DiscountService.new(order).discount_id
           )
         )
         order
       end
 
-      def apply_coupon(coupon)
+      def apply_coupon(discount)
         apply_event(
           ::Order::Events::CouponAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_id: uuid,
-            value: coupon.value
+            discount_id: discount.id
           )
         )
         self
@@ -63,9 +62,7 @@ module Order
       end
 
       # @api private
-      def on_coupon_applied(event)
-        self.discount += event.value
-      end
+      def on_coupon_applied(event); end
 
       # @api private
       def on_products_added(event); end

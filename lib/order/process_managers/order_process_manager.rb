@@ -23,10 +23,10 @@ module Order
 
         self.state = StateValues::ORDER_INITIALIZED
 
-        return if event.discount.zero?
+        return if event.discount_id.nil?
         command = Order::Commands::ApplyCouponCommand.new(
           aggregate_id: event.aggregate_id,
-          value: event.discount
+          discount_id: event.discount_id
         )
         add_command(command)
       end

@@ -8,9 +8,9 @@ module Infrastructure
           AR::Read::Basket.create!(order_id: order_id)
         end
 
-        def apply_coupon(order_id:, value:)
+        def apply_coupon(order_id:, discount:)
           AR::Read::Basket.find_by(order_id: order_id)
-            .increment!(:discount, value)
+            .increment!(:discount, discount.value)
         end
 
         def add_products(order_id:, products:)
