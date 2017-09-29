@@ -24,6 +24,7 @@ class BasketController < ApplicationController
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/basket/index.html.erb',
       view_model: Basket::BasketViewModel.new(
+        order_id: order.id,
         products: products,
         discount: basket.discount,
         total: total || 0,
@@ -53,6 +54,41 @@ class BasketController < ApplicationController
             current_user_id: session[:user_id],
             csrf_token: form_authenticity_token,
             errors: errors
+          )
+        ).html_safe
+      end
+    end
+  end
+
+  def update
+    result = Order::Services::ChangeOrderService.call(params.permit!)
+
+    handle_op_result(result: result) do |handler|
+      handler.on_success = lambda do
+        redirect_to basket_index_path
+      end
+
+      handler.on_failure = proc do |errors|
+        basket = BasketsRepo.find_by(order_id: params['id'])
+        products = []
+        unless basket&.products.nil?
+          basket.products.each do |id, quantity|
+            products << ProductsRepo.find(id)
+              .instance_variable_get(:@fields)
+              .merge('quantity' => params.to_h['products'][id.to_s].to_i)
+          end
+          total = basket.total_price * (1 - basket.discount / 100.0)
+        end
+
+        render html: Infrastructure::TemplateRenderer.render(
+          template: 'app/views/basket/index.html.erb',
+          view_model: Basket::BasketViewModel.new(
+            order_id: params['id'],
+            products: products,
+            discount: basket.discount,
+            total: total || 0,
+            errors: errors,
+            csrf_token: form_authenticity_token
           )
         ).html_safe
       end

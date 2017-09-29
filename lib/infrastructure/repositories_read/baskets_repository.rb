@@ -34,6 +34,24 @@ module Infrastructure
           basket.increment!(:total_price, price)
         end
 
+        def change_order(order_id:, products:)
+          basket = AR::Read::Basket.find_by(order_id: order_id)
+          products = products.reject do |_, v|
+            v.to_i.zero?
+          end
+          price = 0
+          new_basket = {}
+
+          products.each do |id, quantity|
+            id = id.to_i
+            quantity = quantity.to_i
+            new_basket[id] = quantity
+            price += quantity * AR::Product.find(id).price
+          end
+
+          basket.update!(products: new_basket, total_price: price)
+        end
+
         def find_by(order_id:)
           hash = AR::Read::Basket.find_by(
             order_id: order_id
