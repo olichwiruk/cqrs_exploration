@@ -72,7 +72,7 @@ class BasketController < ApplicationController
         basket = BasketsRepo.find_by(order_id: params['id'])
         products = []
         unless basket&.products.nil?
-          basket.products.each do |id, quantity|
+          basket.products.each do |id, _|
             products << ProductsRepo.find(id)
               .instance_variable_get(:@fields)
               .merge('quantity' => params.to_h['products'][id.to_s].to_i)
@@ -87,6 +87,33 @@ class BasketController < ApplicationController
             products: products,
             discount: basket.discount,
             total: total || 0,
+            errors: errors,
+            csrf_token: form_authenticity_token
+          )
+        ).html_safe
+      end
+    end
+  end
+
+  def checkout
+    result = Order::Services::CheckoutService.call(params.permit!)
+
+    handle_op_result(result: result) do |handler|
+      handler.on_success = lambda do
+        redirect_to products_path
+      end
+
+      handler.on_failure = proc do |errors|
+        basket = BasketsRepo.find_by(order_id: params['order_id'])
+        products = YAML.safe_load(params['products'].gsub(/=>/, ': '))
+
+        render html: Infrastructure::TemplateRenderer.render(
+          template: 'app/views/basket/index.html.erb',
+          view_model: Basket::BasketViewModel.new(
+            order_id: params['order_id'],
+            products: products,
+            discount: basket.discount,
+            total: basket.total_price || 0,
             errors: errors,
             csrf_token: form_authenticity_token
           )
