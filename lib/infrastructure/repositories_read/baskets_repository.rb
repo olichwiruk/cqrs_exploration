@@ -13,6 +13,11 @@ module Infrastructure
             .increment!(:discount, discount.value)
         end
 
+        def remove_coupon(order_id:, discount:)
+          AR::Read::Basket.find_by(order_id: order_id)
+            .decrement!(:discount, discount.value)
+        end
+
         def add_products(order_id:, products:)
           basket = AR::Read::Basket.find_by(order_id: order_id)
           price = 0
@@ -50,6 +55,7 @@ module Infrastructure
           end
 
           basket.update!(products: new_basket, total_price: price)
+          basket
         end
 
         def find_by(order_id:)

@@ -9,6 +9,12 @@ module Infrastructure
             AR::Discount.find(id)
           )
         end
+
+        def find_by(name:)
+          Discount::Domain::Discount.new(
+            AR::Discount.find_by(name: name)
+          )
+        end
       end
     end
   end
