@@ -7,3 +7,4 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 AR::Discount.create(name: 'first_order_coupon', value: 10)
+AR::Discount.create(name: 'total_price_coupon', value: 10)

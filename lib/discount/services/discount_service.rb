@@ -5,7 +5,7 @@ module Discount
     class DiscountService
       def initialize(order)
         @order = order
-        @discount_id = 0
+        @discount_id = nil
       end
 
       def discount_id
@@ -14,9 +14,8 @@ module Discount
       end
 
       def first_order_discount
-        unless AR::Order.exists?(user_id: @order.user_id)
-          @discount_id = AR::Discount.find_by(name: 'first_order_coupon').id
-        end
+        return if AR::Order.exists?(user_id: @order.user_id)
+        @discount_id = AR::Discount.find_by(name: 'first_order_coupon').id
       end
     end
   end
