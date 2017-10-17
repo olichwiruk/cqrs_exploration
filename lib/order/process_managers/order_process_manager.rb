@@ -11,6 +11,7 @@ module Order
         NOT_STARTED = 0
         ORDER_INITIALIZED = 1
         COUPON_APPLIED = 2
+        CHECKED_OUT = 3
       end
 
       property :order_id
@@ -38,6 +39,11 @@ module Order
       def products_added(_event); end
 
       def order_changed(event); end
+
+      def order_checked_out(event)
+        self.state = StateValues::CHECKED_OUT
+        self.completed = true
+      end
 
       # @api private
       def add_command(command)
