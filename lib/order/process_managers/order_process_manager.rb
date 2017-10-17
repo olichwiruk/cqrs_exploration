@@ -41,6 +41,16 @@ module Order
       def order_changed(event); end
 
       def order_checked_out(event)
+        order = Infrastructure::Repositories::OrdersRepository.find_by(uuid: event.aggregate_id)
+        discount_id = ::Discount::Services::DiscountService.new(order).discount_id
+        unless discount_id.nil?
+          command = Order::Commands::ApplyCouponCommand.new(
+            aggregate_id: event.aggregate_id,
+            discount_id: discount_id
+          )
+          add_command(command)
+        end
+
         self.state = StateValues::CHECKED_OUT
         self.completed = true
       end
