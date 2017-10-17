@@ -31,21 +31,23 @@
 discount: <%= view_model.discount %>%<br>
 total: <del><%= view_model.total %> USD</del> <%= view_model.total * (1 - view_model.discount / 100.0) %> USD
 
-<% f = form(
-    nil,
-    checkout_path,
-    csrf_token: view_model.csrf_token,
-    csrf_token_name: 'authenticity_token',
-    errors: []
-) %>
-  <%= f.start %>
-  <%= f.hidden value: view_model.order_id,
-               name: 'order_id' %>
-  <%= f.hidden value: view_model.products,
-               name: 'products' %>
-  <%= f.select(
-    name: :payment_method,
-    collection: [['VISA', 1], ['MasterCard', 2]]
+<% unless view_model.products.empty? %>
+  <% f = form(
+      nil,
+      checkout_path,
+      csrf_token: view_model.csrf_token,
+      csrf_token_name: 'authenticity_token',
+      errors: []
   ) %>
-  <%= f.submit value: 'Checkout' unless view_model.products.empty? %>
-<%= f.end %>
+    <%= f.start %>
+    <%= f.hidden value: view_model.order_id,
+                name: 'order_id' %>
+    <%= f.hidden value: view_model.products,
+                name: 'products' %>
+    <%= f.select(
+      name: :payment_method,
+      collection: [['VISA', 1], ['MasterCard', 2]]
+    ) %>
+    <%= f.submit value: 'Checkout' %>
+  <%= f.end %>
+<% end %>
