@@ -5,7 +5,7 @@ module Infrastructure
     class BasketsRepository
       class << self
         def save(order_id)
-          AR::Read::Basket.create!(order_id: order_id)
+          AR::Read::Basket.create!(order_id: order_id, discount: 0)
         end
 
         def apply_coupon(order_id:, discount:)
@@ -21,12 +21,10 @@ module Infrastructure
         def add_products(order_id:, products:)
           basket = AR::Read::Basket.find_by(order_id: order_id)
           price = 0
-          new_basket =
-            if basket.products.nil?
-              {}
-            else
-              YAML.safe_load(basket.products.gsub(/=>/, ': '))
-            end
+          new_basket = {}
+          unless basket.products.nil?
+            new_basket = YAML.safe_load(basket.products.gsub(/=>/, ': '))
+          end
 
           products.each do |id, quantity|
             id = id.to_i
