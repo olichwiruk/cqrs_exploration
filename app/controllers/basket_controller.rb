@@ -18,7 +18,6 @@ class BasketController < ApplicationController
           .instance_variable_get(:@fields)
           .merge('quantity' => quantity)
       end
-      total = basket.total_price * (1 - basket.discount / 100.0)
     end
 
     render html: Infrastructure::TemplateRenderer.render(
@@ -27,7 +26,7 @@ class BasketController < ApplicationController
         order_id: order.id,
         products: products,
         discount: basket.discount,
-        total: total || 0,
+        total: basket.total_price || 0,
         csrf_token: form_authenticity_token
       )
     ).html_safe
@@ -77,7 +76,6 @@ class BasketController < ApplicationController
               .instance_variable_get(:@fields)
               .merge('quantity' => params.to_h['products'][id.to_s].to_i)
           end
-          total = basket.total_price * (1 - basket.discount / 100.0)
         end
 
         render html: Infrastructure::TemplateRenderer.render(
@@ -86,7 +84,7 @@ class BasketController < ApplicationController
             order_id: params['id'],
             products: products,
             discount: basket.discount,
-            total: total || 0,
+            total: basket.total_price || 0,
             errors: errors,
             csrf_token: form_authenticity_token
           )
