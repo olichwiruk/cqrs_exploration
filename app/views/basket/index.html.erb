@@ -29,7 +29,7 @@
 <%= f.end %>
 <br>
 discount: <%= view_model.discount %>%<br>
-total: <%= view_model.total %> USD
+total: <del><%= view_model.total %> USD</del> <%= view_model.total * (1 - view_model.discount / 100.0) %> USD
 
 <% f = form(
     nil,
