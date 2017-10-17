@@ -56,6 +56,15 @@ module Order
         )
       end
 
+      def checkout
+        apply_event(
+          ::Order::Events::OrderCheckedOutEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_id: uuid
+          )
+        )
+      end
+
       # @api private
       def on_order_created(event)
         self.uuid = event.aggregate_id
@@ -69,6 +78,9 @@ module Order
 
       # @api private
       def on_order_changed(event); end
+
+      # @api private
+      def on_order_checked_out(event); end
     end
   end
 end

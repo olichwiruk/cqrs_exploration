@@ -14,7 +14,9 @@ module Infrastructure
        'Order::EventDenormalizers::ProductsAddedEventDenormalizer'],
       'order_changed' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
-       'Order::EventDenormalizers::OrderChangedEventDenormalizer']
+       'Order::EventDenormalizers::OrderChangedEventDenormalizer'],
+      'order_checked_out' =>
+      ['Order::ProcessManagers::OrderProcessManagerRouter']
     }
 
     def self.handlers(event_name)

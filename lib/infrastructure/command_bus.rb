@@ -10,7 +10,9 @@ module Infrastructure
       'Order::Commands::AddProductsCommand' =>
         'Order::CommandHandlers::AddProductsCommandHandler',
       'Order::Commands::ChangeOrderCommand' =>
-        'Order::CommandHandlers::ChangeOrderCommandHandler'
+        'Order::CommandHandlers::ChangeOrderCommandHandler',
+      'Order::Commands::CheckoutOrderCommand' =>
+        'Order::CommandHandlers::CheckoutOrderCommandHandler'
     }
 
     def self.send(command)
