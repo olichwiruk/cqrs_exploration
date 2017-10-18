@@ -24,10 +24,11 @@ module Order
 
         self.state = StateValues::ORDER_INITIALIZED
 
-        return if event.discount_id.nil?
+        discount_id = ::Discount::Services::DiscountService.new(self.order_id).discount_id
+        return if discount_id.nil?
         command = Order::Commands::ApplyCouponCommand.new(
           aggregate_id: event.aggregate_id,
-          discount_id: event.discount_id
+          discount_id: discount_id
         )
         add_command(command)
       end
@@ -41,18 +42,16 @@ module Order
       def order_changed(event); end
 
       def order_checked_out(event)
-        order = Infrastructure::Repositories::OrdersRepository.find_by(uuid: event.aggregate_id)
-        discount_id = ::Discount::Services::DiscountService.new(order).discount_id
-        unless discount_id.nil?
-          command = Order::Commands::ApplyCouponCommand.new(
-            aggregate_id: event.aggregate_id,
-            discount_id: discount_id
-          )
-          add_command(command)
-        end
-
         self.state = StateValues::CHECKED_OUT
         self.completed = true
+
+        discount_id = ::Discount::Services::DiscountService.new(self.order_id).discount_id
+        return if discount_id.nil? || discount_id == 1 # TODO
+        command = Order::Commands::ApplyCouponCommand.new(
+          aggregate_id: event.aggregate_id,
+          discount_id: discount_id
+        )
+        add_command(command)
       end
 
       # @api private

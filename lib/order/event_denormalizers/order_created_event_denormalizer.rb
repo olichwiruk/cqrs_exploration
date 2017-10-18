@@ -8,8 +8,8 @@ module Order
 
       def order_created(event)
         # TODO
-        return unless event.discount_id.nil?
         order = OrdersRepo.find_by(uuid: event.aggregate_id)
+        return if AR::Read::Basket.exists?(order_id: order.id)
         BasketsRepo.save(order.id)
       end
     end

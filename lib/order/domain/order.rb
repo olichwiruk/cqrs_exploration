@@ -17,8 +17,7 @@ module Order
           ::Order::Events::OrderCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
             aggregate_id: SecureRandom.uuid,
-            user_id: order.user_id,
-            discount_id: ::Discount::Services::DiscountService.new(order).discount_id
+            user_id: order.user_id
           )
         )
         order
