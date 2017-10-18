@@ -41,12 +41,27 @@ module Product
         self
       end
 
+      def buy(bought_quantity)
+        apply_event(
+          ::Product::Events::ProductBoughtEvent.new(
+            aggregate_type: self.class.to_s.split('::').last.downcase,
+            aggregate_uuid: uuid,
+            quantity: quantity - bought_quantity
+          )
+        )
+        self
+      end
+
       def on_product_created(event)
         self.uuid = event.aggregate_uuid
       end
 
       def on_product_updated(event)
         update_from_hash(event.values)
+      end
+
+      def on_product_bought(event)
+        self.quantity = event.quantity
       end
 
       # @api private
