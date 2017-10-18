@@ -24,11 +24,11 @@ module Order
 
       # @api private
       def apply_total_price_discount(border_price:, basket:, basket_before:)
-        discount = DiscountsRepo.find_by(name: 'total_price_coupon')
+        discount = DiscountsRepo.find_by(name: 'total_price_discount')
         if basket.total_price > border_price && basket_before.total_price <= border_price
-          BasketsRepo.apply_coupon(order_id: basket.order_id, discount: discount)
+          BasketsRepo.apply_discount(order_id: basket.order_id, discount: discount)
         elsif basket.total_price <= 50 && basket_before.total_price > 50
-          BasketsRepo.remove_coupon(order_id: basket.order_id, discount: discount)
+          BasketsRepo.remove_discount(order_id: basket.order_id, discount: discount)
         end
       end
     end

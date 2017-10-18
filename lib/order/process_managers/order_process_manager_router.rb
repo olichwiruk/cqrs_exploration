@@ -11,9 +11,9 @@ module Order
         save(pm)
       end
 
-      def coupon_applied(event)
+      def discount_applied(event)
         pm = OrderProcessesRepo.load(event.aggregate_uuid)
-        pm.coupon_applied(event)
+        pm.discount_applied(event)
         save(pm)
       end
 

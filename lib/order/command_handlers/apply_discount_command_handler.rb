@@ -2,7 +2,7 @@
 
 module Order
   module CommandHandlers
-    class ApplyCouponCommandHandler
+    class ApplyDiscountCommandHandler
       M = Dry::Monads
       OrdersRepo = Infrastructure::Repositories::OrdersRepository
       DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
@@ -19,7 +19,7 @@ module Order
 
           order = OrdersRepo.find_by(uuid: order_uuid)
           discount = DiscountsRepo.find(discount_id)
-          order.apply_coupon(discount)
+          order.apply_discount(discount)
           OrderDiscountsRepo.apply(order: order, discount: discount)
 
           M.Right(true)

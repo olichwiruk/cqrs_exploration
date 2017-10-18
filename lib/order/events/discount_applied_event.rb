@@ -2,7 +2,7 @@
 
 module Order
   module Events
-    class CouponAppliedEvent < Dry::Struct
+    class DiscountAppliedEvent < Dry::Struct
       include Infrastructure::Types
 
       attribute :aggregate_type, Infrastructure::Types::String

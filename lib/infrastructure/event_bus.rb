@@ -6,9 +6,9 @@ module Infrastructure
       'order_created' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
        'Order::EventDenormalizers::OrderCreatedEventDenormalizer'],
-      'coupon_applied' =>
+      'discount_applied' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
-       'Order::EventDenormalizers::CouponAppliedEventDenormalizer'],
+       'Order::EventDenormalizers::DiscountAppliedEventDenormalizer'],
       'products_added' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
        'Order::EventDenormalizers::ProductsAddedEventDenormalizer'],
