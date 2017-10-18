@@ -38,7 +38,7 @@ module Infrastructure
       event_to_store = Infrastructure::Event.new(
         aggregate_type: event.aggregate_type,
         name: event_name(event),
-        aggregate_id: event.aggregate_id,
+        aggregate_uuid: event.aggregate_uuid,
         data: event.values
       )
       Infrastructure::WriteRepo.add_event(event_to_store)

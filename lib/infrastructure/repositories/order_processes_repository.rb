@@ -8,7 +8,7 @@ module Infrastructure
         def save(pm)
           values = pm.instance_variable_get(:@fields)
             .without('commands')
-          process = AR::OrderProcess.find_by(order_id: pm.order_id)
+          process = AR::OrderProcess.find_by(order_uuid: pm.order_uuid)
           if process.nil?
             AR::OrderProcess.new(values).save
           else
@@ -17,9 +17,9 @@ module Infrastructure
         end
 
         # read
-        def load(order_id)
+        def load(order_uuid)
           Order::ProcessManagers::OrderProcessManager.new(
-            AR::OrderProcess.find_by(order_id: order_id)
+            AR::OrderProcess.find_by(order_uuid: order_uuid)
           )
         end
 

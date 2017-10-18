@@ -6,7 +6,7 @@ module Order
       attr_reader :params
 
       Validator = Dry::Validation.Schema do
-        required(:aggregate_id).filled
+        required(:aggregate_uuid).filled
         required(:discount_id).filled
       end
 

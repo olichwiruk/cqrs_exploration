@@ -18,7 +18,7 @@ module Customer
         user.apply_event(
           Customer::Events::UserCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_id: SecureRandom.uuid,
+            aggregate_uuid: SecureRandom.uuid,
             name: user.name,
             email: user.email
           )
@@ -31,7 +31,7 @@ module Customer
         new_email = user_params['email']
         event = Customer::Events::UserUpdatedEvent.new(
           aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_id: uuid,
+          aggregate_uuid: uuid,
           name: update_attr(name, new_name),
           email: update_attr(email, new_email)
         )
@@ -40,7 +40,7 @@ module Customer
       end
 
       def on_user_created(event)
-        self.uuid = event.aggregate_id
+        self.uuid = event.aggregate_uuid
       end
 
       def on_user_updated(event)

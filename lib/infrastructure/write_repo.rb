@@ -5,13 +5,13 @@ module Infrastructure
     class << self
       def add_event(event)
         aggregate_type = event.aggregate_type
-        aggregate_id = event.aggregate_id
+        aggregate_uuid = event.aggregate_uuid
         name = event.name
         data = event.data
 
         sql = <<-SQL
-          insert into write_repo (aggregate_type, aggregate_id, event_name, data, created_at)
-          values ('#{aggregate_type}', '#{aggregate_id}', '#{name}', '#{data}', '#{Time.now}')
+          insert into write_repo (aggregate_type, aggregate_uuid, event_name, data, created_at)
+          values ('#{aggregate_type}', '#{aggregate_uuid}', '#{name}', '#{data}', '#{Time.now}')
         SQL
 
         ActiveRecord::Base.connection.execute(sql)

@@ -7,7 +7,7 @@ module Order
       DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
 
       def order_changed(event)
-        order = AR::Order.find_by(uuid: event.aggregate_id)
+        order = AR::Order.find_by(uuid: event.aggregate_uuid)
 
         basket_before = BasketsRepo.find_by(order_id: order.id)
         basket = BasketsRepo.change_order(

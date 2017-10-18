@@ -17,7 +17,7 @@ module Product
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_id: SecureRandom.uuid,
+            aggregate_uuid: SecureRandom.uuid,
             name: product.name,
             quantity: product.quantity,
             price: product.price
@@ -32,7 +32,7 @@ module Product
         new_price = product_params['price']
         event = ::Product::Events::ProductUpdatedEvent.new(
           aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_id: uuid,
+          aggregate_uuid: uuid,
           name: update_attr(name, new_name),
           quantity: update_attr(quantity, new_quantity),
           price: update_attr(price, new_price)
@@ -42,7 +42,7 @@ module Product
       end
 
       def on_product_created(event)
-        self.uuid = event.aggregate_id
+        self.uuid = event.aggregate_uuid
       end
 
       def on_product_updated(event)
