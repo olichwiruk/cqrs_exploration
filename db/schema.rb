@@ -10,11 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170929094923) do
+ActiveRecord::Schema.define(version: 20171018120640) do
 
   create_table "discounts", force: :cascade do |t|
     t.string "name"
     t.integer "value"
+  end
+
+  create_table "loyalty_cards", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "discount"
   end
 
   create_table "order_discounts", force: :cascade do |t|

@@ -25,6 +25,8 @@ module Order
             ProductsRepo.update(product)
           end
 
+          Infrastructure::Repositories::LoyaltyCardsRepository.save(user_id: order.user_id)
+
           M.Right(true)
         end
       end

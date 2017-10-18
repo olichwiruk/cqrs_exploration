@@ -12,14 +12,29 @@ module Discount
 
       def discount
         first_order_discount
+        loyalty_card_discount
         total_price_discount
         @discount
       end
 
       # @api private
       def first_order_discount
-        return unless AR::Order.count("user_id = #{@order.user_id}") == 1
-        @discount = AR::Discount.find_by(name: 'first_order_discount')
+        discount = AR::Discount.find_by(name: 'first_order_discount')
+        return unless AR::Order.count("user_id = #{@order.user_id}") == 1 &&
+            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
+        @discount = discount
+      end
+
+      # @api private
+      def loyalty_card_discount
+        discount = AR::Discount.find_by(name: 'loyalty_card_discount')
+
+        return unless AR::LoyaltyCard.exists?(user_id: @order.user_id) &&
+            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
+
+        loyalty_card = AR::LoyaltyCard.find_by(user_id: @order.user_id)
+        @discount = discount
+        @discount.value = loyalty_card.discount
       end
 
       # @api private
@@ -30,8 +45,12 @@ module Discount
           total += AR::Product.find(line.product_id).price * line.quantity
         end
 
-        return unless total > 50
-        @discount = AR::Discount.find_by(name: 'total_price_discount')
+        discount = AR::Discount.find_by(name: 'total_price_discount')
+
+        return unless total > 50 &&
+            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
+
+        @discount = discount
       end
     end
   end
