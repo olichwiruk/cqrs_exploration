@@ -8,9 +8,10 @@ module Order
       DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
 
       def discount_applied(event)
-        return if event.discount_id == 2 # TODO: to fix
+        return if event.discount_id == 3 # TODO: to fix
         order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
         discount = DiscountsRepo.find(event.discount_id)
+        discount.value = event.discount_value
 
         BasketsRepo.save(order.id) # TODO
         BasketsRepo.apply_discount(

@@ -28,7 +28,8 @@ module Order
           ::Order::Events::DiscountAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_uuid: uuid,
-            discount_id: discount.id
+            discount_id: discount.id,
+            discount_value: discount.value
           )
         )
         self
