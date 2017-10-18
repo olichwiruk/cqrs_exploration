@@ -7,50 +7,53 @@ module Discount
 
       def initialize(order_uuid)
         @order = OrdersRepo.find_by(uuid: order_uuid)
-        @discount = nil
+        @discounts = []
       end
 
-      def discount
+      def discounts
         first_order_discount
         loyalty_card_discount
         total_price_discount
-        @discount
+        @discounts
       end
 
       # @api private
       def first_order_discount
         discount = AR::Discount.find_by(name: 'first_order_discount')
-        return unless AR::Order.count("user_id = #{@order.user_id}") == 1 &&
-            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
-        @discount = discount
+        condition = AR::Order.count("user_id = #{@order.user_id}") == 1
+
+        @discounts << discount if condition && !discount_applied?(discount.id)
       end
 
       # @api private
       def loyalty_card_discount
         discount = AR::Discount.find_by(name: 'loyalty_card_discount')
+        condition = AR::LoyaltyCard.exists?(user_id: @order.user_id)
 
-        return unless AR::LoyaltyCard.exists?(user_id: @order.user_id) &&
-            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
+        return nil unless condition && !discount_applied?(discount.id)
 
         loyalty_card = AR::LoyaltyCard.find_by(user_id: @order.user_id)
-        @discount = discount
-        @discount.value = loyalty_card.discount
+        discount.value = loyalty_card.discount
+        @discounts << discount
       end
 
       # @api private
       def total_price_discount
+        discount = AR::Discount.find_by(name: 'total_price_discount')
+
         total = 0
         lines = AR::OrderLine.where(order_id: @order.id)
         lines.each do |line|
           total += AR::Product.find(line.product_id).price * line.quantity
         end
+        condition = total > 50
 
-        discount = AR::Discount.find_by(name: 'total_price_discount')
+        @discounts << discount if condition && !discount_applied?(discount.id)
+      end
 
-        return unless total > 50 &&
-            !AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount.id)
-
-        @discount = discount
+      # @api private
+      def discount_applied?(discount_id)
+        AR::OrderDiscount.exists?(order_id: @order.id, discount_id: discount_id)
       end
     end
   end
