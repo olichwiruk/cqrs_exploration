@@ -16,7 +16,7 @@ module Order
         order.apply_event(
           ::Order::Events::OrderCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_id: SecureRandom.uuid,
+            aggregate_uuid: SecureRandom.uuid,
             user_id: order.user_id
           )
         )
@@ -27,7 +27,7 @@ module Order
         apply_event(
           ::Order::Events::CouponAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_id: uuid,
+            aggregate_uuid: uuid,
             discount_id: discount.id
           )
         )
@@ -38,7 +38,7 @@ module Order
         apply_event(
           ::Order::Events::ProductsAddedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_id: uuid,
+            aggregate_uuid: uuid,
             products: products
           )
         )
@@ -49,7 +49,7 @@ module Order
         apply_event(
           ::Order::Events::OrderChangedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_id: uuid,
+            aggregate_uuid: uuid,
             products: products
           )
         )
@@ -59,14 +59,14 @@ module Order
         apply_event(
           ::Order::Events::OrderCheckedOutEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_id: uuid
+            aggregate_uuid: uuid
           )
         )
       end
 
       # @api private
       def on_order_created(event)
-        self.uuid = event.aggregate_id
+        self.uuid = event.aggregate_uuid
       end
 
       # @api private

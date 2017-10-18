@@ -30,10 +30,10 @@ ActiveRecord::Schema.define(version: 20170929094923) do
   end
 
   create_table "order_processes", force: :cascade do |t|
-    t.string "order_id", null: false
+    t.string "order_uuid", null: false
     t.boolean "completed"
     t.string "state"
-    t.index ["order_id"], name: "index_order_processes_on_order_id", unique: true
+    t.index ["order_uuid"], name: "index_order_processes_on_order_uuid", unique: true
   end
 
   create_table "orders", force: :cascade do |t|
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 20170929094923) do
 
   create_table "write_repo", force: :cascade do |t|
     t.string "aggregate_type"
-    t.string "aggregate_id"
+    t.string "aggregate_uuid"
     t.string "event_name"
     t.string "data"
     t.datetime "created_at"

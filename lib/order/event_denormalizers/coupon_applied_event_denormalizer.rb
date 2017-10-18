@@ -9,7 +9,7 @@ module Order
 
       def coupon_applied(event)
         return if event.discount_id == 2 # TODO: to fix
-        order = OrdersRepo.find_by(uuid: event.aggregate_id)
+        order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
         discount = DiscountsRepo.find(event.discount_id)
 
         BasketsRepo.save(order.id) # TODO

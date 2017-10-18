@@ -14,7 +14,7 @@ module Order
 
           return M.Left(validation_result.errors) unless validation_result.success?
 
-          order_uuid = validation_result.output[:aggregate_id]
+          order_uuid = validation_result.output[:aggregate_uuid]
           discount_id = validation_result.output[:discount_id]
 
           order = OrdersRepo.find_by(uuid: order_uuid)

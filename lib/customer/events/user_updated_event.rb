@@ -6,13 +6,13 @@ module Customer
       include Infrastructure::Types
 
       attribute :aggregate_type, Infrastructure::Types::String
-      attribute :aggregate_id, Infrastructure::Types::String
+      attribute :aggregate_uuid, Infrastructure::Types::String
       attribute :name, Infrastructure::Types::String.optional
       attribute :email, Infrastructure::Types::Email.optional
 
       def values
         instance_values
-          .without('aggregate_id', 'aggregate_type')
+          .without('aggregate_uuid', 'aggregate_type')
           .delete_if do |_, v|
           v.nil?
         end

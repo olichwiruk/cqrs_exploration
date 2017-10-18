@@ -7,7 +7,7 @@ module Infrastructure
     include Infrastructure::Types
 
     attribute :aggregate_type, Types::String
-    attribute :aggregate_id, Types::String
+    attribute :aggregate_uuid, Types::String
     attribute :name, Types::String
     attribute :data, Types::String
   end

@@ -8,7 +8,7 @@ module Order
 
       def order_created(event)
         # TODO
-        order = OrdersRepo.find_by(uuid: event.aggregate_id)
+        order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
         return if AR::Read::Basket.exists?(order_id: order.id)
         BasketsRepo.save(order.id)
       end

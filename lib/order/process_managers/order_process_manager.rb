@@ -14,7 +14,7 @@ module Order
         CHECKED_OUT = 3
       end
 
-      property :order_id
+      property :order_uuid
       property :completed, default: false
       property :state, default: StateValues::NOT_STARTED
       property :commands, default: []
@@ -24,10 +24,10 @@ module Order
 
         self.state = StateValues::ORDER_INITIALIZED
 
-        discount_id = ::Discount::Services::DiscountService.new(self.order_id).discount_id
+        discount_id = ::Discount::Services::DiscountService.new(order_uuid).discount_id
         return if discount_id.nil?
         command = Order::Commands::ApplyCouponCommand.new(
-          aggregate_id: event.aggregate_id,
+          aggregate_uuid: event.aggregate_uuid,
           discount_id: discount_id
         )
         add_command(command)
@@ -37,7 +37,7 @@ module Order
         self.state = StateValues::COUPON_APPLIED
       end
 
-      def products_added(_event); end
+      def products_added(event); end
 
       def order_changed(event); end
 
@@ -45,10 +45,10 @@ module Order
         self.state = StateValues::CHECKED_OUT
         self.completed = true
 
-        discount_id = ::Discount::Services::DiscountService.new(self.order_id).discount_id
+        discount_id = ::Discount::Services::DiscountService.new(order_uuid).discount_id
         return if discount_id.nil? || discount_id == 1 # TODO
         command = Order::Commands::ApplyCouponCommand.new(
-          aggregate_id: event.aggregate_id,
+          aggregate_uuid: event.aggregate_uuid,
           discount_id: discount_id
         )
         add_command(command)
