@@ -3,8 +3,10 @@
 module Discount
   module Services
     class DiscountService
-      def initialize(order)
-        @order = order
+      OrdersRepo = Infrastructure::Repositories::OrdersRepository
+
+      def initialize(order_uuid)
+        @order = OrdersRepo.find_by(uuid: order_uuid)
         @discount_id = nil
       end
 
@@ -16,7 +18,7 @@ module Discount
 
       # @api private
       def first_order_discount
-        return if AR::Order.exists?(user_id: @order.user_id)
+        return unless AR::Order.count("user_id = #{@order.user_id}") == 1
         @discount_id = AR::Discount.find_by(name: 'first_order_coupon').id
       end
 
