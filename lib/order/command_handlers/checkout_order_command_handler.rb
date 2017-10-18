@@ -5,6 +5,7 @@ module Order
     class CheckoutOrderCommandHandler
       M = Dry::Monads
       OrdersRepo = Infrastructure::Repositories::OrdersRepository
+      ProductsRepo = Infrastructure::Repositories::ProductsRepository
 
       class << self
         def execute(command)
@@ -16,6 +17,13 @@ module Order
           order = OrdersRepo.find(order_id)
           order.checkout
           OrdersRepo.update(order)
+
+          lines = Infrastructure::Repositories::OrderLinesRepository.find_order(order_id)
+          lines.each do |line|
+            product = ProductsRepo.find(line.product_id)
+            product.buy(line.quantity)
+            ProductsRepo.update(product)
+          end
 
           M.Right(true)
         end

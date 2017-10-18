@@ -43,6 +43,15 @@ module Infrastructure
           )
         end
 
+        def find_order(order_id)
+          lines = []
+          lines_db = AR::OrderLine.where(order_id: order_id)
+          lines_db.each do |line|
+            lines << build(line.attributes)
+          end
+          lines
+        end
+
         # @api private
         def create_or_update(line_db, line)
           if line_db.nil?
