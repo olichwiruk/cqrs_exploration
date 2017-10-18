@@ -7,19 +7,19 @@ module Discount
 
       def initialize(order_uuid)
         @order = OrdersRepo.find_by(uuid: order_uuid)
-        @discount_id = nil
+        @discount = nil
       end
 
-      def discount_id
+      def discount
         first_order_discount
         total_price_discount
-        @discount_id
+        @discount
       end
 
       # @api private
       def first_order_discount
         return unless AR::Order.count("user_id = #{@order.user_id}") == 1
-        @discount_id = AR::Discount.find_by(name: 'first_order_discount').id
+        @discount = AR::Discount.find_by(name: 'first_order_discount')
       end
 
       # @api private
@@ -31,7 +31,7 @@ module Discount
         end
 
         return unless total > 50
-        @discount_id = AR::Discount.find_by(name: 'total_price_discount').id
+        @discount = AR::Discount.find_by(name: 'total_price_discount')
       end
     end
   end

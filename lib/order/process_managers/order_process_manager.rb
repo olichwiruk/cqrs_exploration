@@ -24,11 +24,11 @@ module Order
 
         self.state = StateValues::ORDER_INITIALIZED
 
-        discount_id = ::Discount::Services::DiscountService.new(order_uuid).discount_id
-        return if discount_id.nil?
+        discount = ::Discount::Services::DiscountService.new(order_uuid).discount
+        return if discount.nil?
         command = Order::Commands::ApplyDiscountCommand.new(
           aggregate_uuid: event.aggregate_uuid,
-          discount_id: discount_id
+          discount: discount
         )
         add_command(command)
       end
@@ -45,11 +45,11 @@ module Order
         self.state = StateValues::CHECKED_OUT
         self.completed = true
 
-        discount_id = ::Discount::Services::DiscountService.new(order_uuid).discount_id
-        return if discount_id.nil? || discount_id == 1 # TODO
+        discount = ::Discount::Services::DiscountService.new(order_uuid).discount
+        return if discount.nil? || discount.id == 1 # TODO
         command = Order::Commands::ApplyDiscountCommand.new(
           aggregate_uuid: event.aggregate_uuid,
-          discount_id: discount_id
+          discount: discount
         )
         add_command(command)
       end

@@ -15,10 +15,9 @@ module Order
           return M.Left(validation_result.errors) unless validation_result.success?
 
           order_uuid = validation_result.output[:aggregate_uuid]
-          discount_id = validation_result.output[:discount_id]
+          discount = validation_result.output[:discount]
 
           order = OrdersRepo.find_by(uuid: order_uuid)
-          discount = DiscountsRepo.find(discount_id)
           order.apply_discount(discount)
           OrderDiscountsRepo.apply(order: order, discount: discount)
 
