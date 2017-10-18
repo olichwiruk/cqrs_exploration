@@ -5,8 +5,8 @@ module Infrastructure
     @bus = {
       'Order::Commands::CreateOrderCommand' =>
         'Order::CommandHandlers::CreateOrderCommandHandler',
-      'Order::Commands::ApplyCouponCommand' =>
-        'Order::CommandHandlers::ApplyCouponCommandHandler',
+      'Order::Commands::ApplyDiscountCommand' =>
+        'Order::CommandHandlers::ApplyDiscountCommandHandler',
       'Order::Commands::AddProductsCommand' =>
         'Order::CommandHandlers::AddProductsCommandHandler',
       'Order::Commands::ChangeOrderCommand' =>

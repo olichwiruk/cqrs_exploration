@@ -19,7 +19,7 @@ module Discount
       # @api private
       def first_order_discount
         return unless AR::Order.count("user_id = #{@order.user_id}") == 1
-        @discount_id = AR::Discount.find_by(name: 'first_order_coupon').id
+        @discount_id = AR::Discount.find_by(name: 'first_order_discount').id
       end
 
       # @api private
@@ -31,7 +31,7 @@ module Discount
         end
 
         return unless total > 50
-        @discount_id = AR::Discount.find_by(name: 'total_price_coupon').id
+        @discount_id = AR::Discount.find_by(name: 'total_price_discount').id
       end
     end
   end

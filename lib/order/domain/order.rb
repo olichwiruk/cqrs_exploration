@@ -23,9 +23,9 @@ module Order
         order
       end
 
-      def apply_coupon(discount)
+      def apply_discount(discount)
         apply_event(
-          ::Order::Events::CouponAppliedEvent.new(
+          ::Order::Events::DiscountAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_uuid: uuid,
             discount_id: discount.id
@@ -70,7 +70,7 @@ module Order
       end
 
       # @api private
-      def on_coupon_applied(event); end
+      def on_discount_applied(event); end
 
       # @api private
       def on_products_added(event); end

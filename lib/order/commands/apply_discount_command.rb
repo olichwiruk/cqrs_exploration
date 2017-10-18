@@ -2,7 +2,7 @@
 
 module Order
   module Commands
-    class ApplyCouponCommand
+    class ApplyDiscountCommand
       attr_reader :params
 
       Validator = Dry::Validation.Schema do

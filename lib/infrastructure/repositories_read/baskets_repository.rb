@@ -8,12 +8,12 @@ module Infrastructure
           AR::Read::Basket.create!(order_id: order_id, discount: 0)
         end
 
-        def apply_coupon(order_id:, discount:)
+        def apply_discount(order_id:, discount:)
           AR::Read::Basket.find_by(order_id: order_id)
             .increment!(:discount, discount.value)
         end
 
-        def remove_coupon(order_id:, discount:)
+        def remove_discount(order_id:, discount:)
           AR::Read::Basket.find_by(order_id: order_id)
             .decrement!(:discount, discount.value)
         end

@@ -2,18 +2,18 @@
 
 module Order
   module EventDenormalizers
-    class CouponAppliedEventDenormalizer
+    class DiscountAppliedEventDenormalizer
       BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
       OrdersRepo = Infrastructure::Repositories::OrdersRepository
       DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
 
-      def coupon_applied(event)
+      def discount_applied(event)
         return if event.discount_id == 2 # TODO: to fix
         order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
         discount = DiscountsRepo.find(event.discount_id)
 
         BasketsRepo.save(order.id) # TODO
-        BasketsRepo.apply_coupon(
+        BasketsRepo.apply_discount(
           order_id: order.id,
           discount: discount
         )
