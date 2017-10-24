@@ -13,11 +13,9 @@ module Order
         discount = DiscountsRepo.find(event.discount_id)
         discount.value = event.discount_value
 
-        BasketsRepo.save(order.id) # TODO
-        BasketsRepo.apply_discount(
-          order_id: order.id,
-          discount: discount
-        )
+        basket = BasketsRepo.find_or_create_by(order_id: order.id)
+        basket.apply_discount(discount: discount)
+        BasketsRepo.update(basket)
       end
     end
   end
