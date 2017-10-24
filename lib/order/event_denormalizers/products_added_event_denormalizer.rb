@@ -4,32 +4,18 @@ module Order
   module EventDenormalizers
     class ProductsAddedEventDenormalizer
       BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
-      DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
+      OrdersRepo = Infrastructure::Repositories::OrdersRepository
 
       def products_added(event)
-        order = AR::Order.find_by(uuid: event.aggregate_uuid)
+        order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
 
-        basket_before = BasketsRepo.find_by(order_id: order.id)
-        basket = BasketsRepo.add_products(
-          order_id: order.id,
+        basket = BasketsRepo.find_or_create_by(order_id: order.id)
+        basket.add_products(
           products: event.products
         )
-
-        apply_total_price_discount(
-          border_price: 50,
-          basket: basket,
-          basket_before: basket_before
-        )
+        BasketsRepo.update(basket)
       end
 
-      # @api private
-      def apply_total_price_discount(border_price:, basket:, basket_before:)
-        discount = DiscountsRepo.find_by(name: 'total_price_discount')
-        if basket.total_price > border_price &&
-            (basket_before.total_price.nil? || basket_before.total_price <= border_price)
-          BasketsRepo.apply_discount(order_id: basket.order_id, discount: discount)
-        end
-      end
     end
   end
 end

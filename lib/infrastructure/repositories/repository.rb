@@ -19,6 +19,12 @@ module Infrastructure
         entity.commit
       end
 
+      def find_or_create_by(uuid:)
+        domain.new(
+          active_record.find_or_create_by(uuid: uuid)
+        )
+      end
+
       # read
       def all
         active_record.all

@@ -5,70 +5,37 @@ module Infrastructure
     class BasketsRepository
       class << self
         def save(order_id)
-          AR::Read::Basket.create!(order_id: order_id, discount: 0)
+          AR::Read::Basket.create!(
+            order_id: order_id,
+            discount: 0
+          )
         end
 
-        def apply_discount(order_id:, discount:)
-          AR::Read::Basket.find_by(order_id: order_id)
-            .increment!(:discount, discount.value)
+        def update(basket)
+          AR::Read::Basket.update(
+            basket.id,
+            basket.attributes
+          ).save!
         end
 
-        def remove_discount(order_id:, discount:)
-          AR::Read::Basket.find_by(order_id: order_id)
-            .decrement!(:discount, discount.value)
-        end
-
-        def add_products(order_id:, products:)
-          basket = AR::Read::Basket.find_by(order_id: order_id)
-          price = 0
-          new_basket = {}
-          unless basket.products.nil?
-            new_basket = YAML.safe_load(basket.products.gsub(/=>/, ': '))
-          end
-
-          products.each do |product|
-            id = product.id
-            quantity = product.quantity
-            new_basket[id] = (new_basket[id] || 0) + quantity
-            price += quantity * product.price
-          end
-
-          basket.update!(products: new_basket)
-          basket.increment!(:total_price, price)
-        end
-
-        def change_order(order_id:, products:)
-          basket = AR::Read::Basket.find_by(order_id: order_id)
-          products = products.reject do |product|
-            product.quantity.zero?
-          end
-          price = 0
-          new_basket = {}
-
-          products.each do |product|
-            id = product.id
-            quantity = product.quantity
-            new_basket[id] = quantity
-            price += quantity * product.price
-          end
-
-          basket.update!(products: new_basket, total_price: price)
-          basket
+        def find_or_create_by(order_id:)
+          build(
+            AR::Read::Basket.find_or_create_by(
+              order_id: order_id
+            )
+          )
         end
 
         def find_by(order_id:)
-          hash = AR::Read::Basket.find_by(
-            order_id: order_id
-          ).attributes
-          unless hash['products'].nil?
-            hash['products'] = YAML.safe_load(
-              hash['products'].gsub(/=>/, ': ')
+          build(
+            AR::Read::Basket.find_by(
+              order_id: order_id
             )
-          end
-
-          Order::ReadModels::Basket.new(
-            hash
           )
+        end
+
+        def build(ar)
+          Order::Domain::Read::Basket.initialize(ar)
         end
       end
     end
