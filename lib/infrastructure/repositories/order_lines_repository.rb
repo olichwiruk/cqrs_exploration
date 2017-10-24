@@ -5,15 +5,15 @@ module Infrastructure
     class OrderLinesRepository
       class << self
         def save(order, products)
-          products.each do |id, quantity|
+          products.each do |product|
             line = {
               order_id: order.id,
-              product_id: id.to_i,
-              quantity: quantity.to_i
+              product_id: product.id,
+              quantity: product.quantity
             }
             line_db = AR::OrderLine.find_by(
               order_id: order.id,
-              product_id: id.to_i
+              product_id: product.id
             )
 
             create_or_update(line_db, line)
@@ -23,10 +23,12 @@ module Infrastructure
         end
 
         def change(order, products)
-          products.each do |id, quantity|
+          products.each do |product|
+            id = product.id
+            quantity = product.quantity
             line_db = AR::OrderLine.find_by(
               order_id: order.id,
-              product_id: id.to_i
+              product_id: id
             )
             if quantity.to_i.zero?
               line_db.destroy!

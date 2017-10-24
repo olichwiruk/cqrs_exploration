@@ -26,11 +26,11 @@ module Infrastructure
             new_basket = YAML.safe_load(basket.products.gsub(/=>/, ': '))
           end
 
-          products.each do |id, quantity|
-            id = id.to_i
-            quantity = quantity.to_i
+          products.each do |product|
+            id = product.id
+            quantity = product.quantity
             new_basket[id] = (new_basket[id] || 0) + quantity
-            price += quantity * AR::Product.find(id).price
+            price += quantity * product.price
           end
 
           basket.update!(products: new_basket)
@@ -39,17 +39,17 @@ module Infrastructure
 
         def change_order(order_id:, products:)
           basket = AR::Read::Basket.find_by(order_id: order_id)
-          products = products.reject do |_, v|
-            v.to_i.zero?
+          products = products.reject do |product|
+            product.quantity.zero?
           end
           price = 0
           new_basket = {}
 
-          products.each do |id, quantity|
-            id = id.to_i
-            quantity = quantity.to_i
+          products.each do |product|
+            id = product.id
+            quantity = product.quantity
             new_basket[id] = quantity
-            price += quantity * AR::Product.find(id).price
+            price += quantity * product.price
           end
 
           basket.update!(products: new_basket, total_price: price)
