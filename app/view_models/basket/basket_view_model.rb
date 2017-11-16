@@ -2,13 +2,16 @@
 
 module Basket
   class BasketViewModel
-    attr_reader :order_id, :products, :discount, :total, :errors, :csrf_token
+    attr_reader :products, :basket, :errors, :csrf_token
 
-    def initialize(order_id:, products:, discount:, total:, errors: {}, csrf_token:)
-      @order_id = order_id
+    def initialize(
+      products:,
+      basket:,
+      errors: {},
+      csrf_token:
+    )
       @products = products
-      @discount = discount
-      @total = total
+      @basket = basket
       @errors = errors
       @csrf_token = csrf_token
     end

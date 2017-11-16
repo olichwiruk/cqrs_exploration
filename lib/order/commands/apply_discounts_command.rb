@@ -2,12 +2,11 @@
 
 module Order
   module Commands
-    class ApplyDiscountCommand
+    class ApplyDiscountsCommand
       attr_reader :params
 
       Validator = Dry::Validation.Schema do
         required(:aggregate_uuid).filled
-        required(:discount).filled
       end
 
       def initialize(params)

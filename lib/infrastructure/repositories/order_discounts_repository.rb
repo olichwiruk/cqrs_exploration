@@ -4,10 +4,10 @@ module Infrastructure
   module Repositories
     class OrderDiscountsRepository
       class << self
-        def apply(order:, discount:)
-          AR::OrderDiscount.create(order_id: order.id, discount_id: discount.id)
-
-          order.commit
+        def apply(order:, discounts:)
+          discounts.each do |d|
+            AR::OrderDiscount.create(order_id: order.id, discount_id: d.id)
+          end
         end
       end
     end

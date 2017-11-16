@@ -4,10 +4,9 @@ module Infrastructure
   module RepositoriesRead
     class BasketsRepository
       class << self
-        def save(order_id)
+        def save(user_uuid)
           AR::Read::Basket.create!(
-            order_id: order_id,
-            discount: 0
+            user_uuid: user_uuid
           )
         end
 
@@ -18,18 +17,18 @@ module Infrastructure
           ).save!
         end
 
-        def find_or_create_by(order_id:)
+        def find_or_create_by(user_id:)
           build(
             AR::Read::Basket.find_or_create_by(
-              order_id: order_id
+              user_id: user_id
             )
           )
         end
 
-        def find_by(order_id:)
+        def find_by(user_id:)
           build(
             AR::Read::Basket.find_by(
-              order_id: order_id
+              user_id: user_id
             )
           )
         end

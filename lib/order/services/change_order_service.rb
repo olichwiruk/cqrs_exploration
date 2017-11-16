@@ -10,9 +10,11 @@ module Order
           params_validation = validate(params)
 
           return params_validation if params_validation.failure?
+          user_id = params[:id]
+          order = Infrastructure::Repositories::OrdersRepository.find_current(user_id)
 
           command = Order::Commands::ChangeOrderCommand.new(
-            order_id: params[:id],
+            order_id: order.id,
             basket: params.to_h[:products]
           )
           Infrastructure::CommandBus.send(command)

@@ -6,6 +6,7 @@ module Product
       class << self
         M = Dry::Monads
         ProductsRepo = Infrastructure::Repositories::ProductsRepository
+        EventStore = Infrastructure::WriteRepo
 
         def call(params)
           params[:quantity] = params[:quantity].to_i
@@ -13,7 +14,8 @@ module Product
           params_validation = validate(params)
           return params_validation unless params_validation.success?
 
-          product = ProductsRepo.build(params)
+          product = ProductsRepo.build(params: params)
+          EventStore.commit(product.events)
           ProductsRepo.save(product)
 
           params_validation

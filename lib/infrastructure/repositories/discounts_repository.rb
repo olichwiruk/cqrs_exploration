@@ -11,7 +11,8 @@ module Infrastructure
         end
 
         def find_by(name:)
-          Discount::Domain::Discount.new(
+          discount = "Order::Domain::Discounts::#{name.to_s.classify}".constantize
+          discount.new(
             AR::Discount.find_by(name: name)
           )
         end

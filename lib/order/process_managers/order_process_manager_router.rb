@@ -11,21 +11,9 @@ module Order
         save(pm)
       end
 
-      def discount_applied(event)
-        pm = OrderProcessesRepo.load(event.aggregate_uuid)
-        pm.discount_applied(event)
-        save(pm)
-      end
-
       def products_added(event)
         pm = OrderProcessesRepo.load(event.aggregate_uuid)
         pm.products_added(event)
-        save(pm)
-      end
-
-      def order_changed(event)
-        pm = OrderProcessesRepo.load(event.aggregate_uuid)
-        pm.order_changed(event)
         save(pm)
       end
 

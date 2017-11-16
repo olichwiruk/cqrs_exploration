@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-
 module Customer
   module Domain
     class User < Disposable::Twin
@@ -18,7 +16,7 @@ module Customer
         user.apply_event(
           Customer::Events::UserCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: SecureRandom.uuid,
+            aggregate_uuid: user.uuid,
             name: user.name,
             email: user.email
           )

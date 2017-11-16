@@ -23,13 +23,14 @@ module Order
 
         # @api private
         def on_success(params, basket)
-          order = OrdersRepo.find_current(params[:user_id])
+          user_id = params[:user_id]
+          order = OrdersRepo.find_current(user_id)
           if order.nil?
             command = Order::Commands::CreateOrderCommand.new(
-              user_id: params[:user_id]
+              user_id: user_id
             )
             Infrastructure::CommandBus.send(command)
-            order = OrdersRepo.find_current(params[:user_id])
+            order = OrdersRepo.find_current(user_id)
           end
 
           command = Order::Commands::AddProductsCommand.new(

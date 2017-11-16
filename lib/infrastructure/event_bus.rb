@@ -6,20 +6,17 @@ module Infrastructure
       'order_created' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter'],
 
-      'discount_applied' =>
-      ['Order::ProcessManagers::OrderProcessManagerRouter',
-       'Order::EventDenormalizers::DiscountAppliedEventDenormalizer'],
-
       'products_added' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
-       'Order::EventDenormalizers::ProductsAddedEventDenormalizer'],
+       'Order::OrderViewModelGenerator'],
 
       'order_changed' =>
-      ['Order::ProcessManagers::OrderProcessManagerRouter',
-       'Order::EventDenormalizers::OrderChangedEventDenormalizer'],
+      ['Order::OrderViewModelGenerator'],
 
       'order_checked_out' =>
-      ['Order::ProcessManagers::OrderProcessManagerRouter']
+      ['Order::ProcessManagers::OrderProcessManagerRouter',
+       'Order::OrderViewModelGenerator',
+       'Product::Services::UpdateWarehouseService']
     }
 
     def self.handlers(event_name)

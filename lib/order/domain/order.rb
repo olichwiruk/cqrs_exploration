@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'securerandom'
-
 module Order
   module Domain
     class Order < Disposable::Twin
@@ -16,20 +14,19 @@ module Order
         order.apply_event(
           ::Order::Events::OrderCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: SecureRandom.uuid,
+            aggregate_uuid: order.uuid,
             user_id: order.user_id
           )
         )
         order
       end
 
-      def apply_discount(discount)
+      def apply_discounts(discounts)
         apply_event(
-          ::Order::Events::DiscountAppliedEvent.new(
+          ::Order::Events::DiscountsAppliedEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_uuid: uuid,
-            discount_id: discount.id,
-            discount_value: discount.value
+            discounts: discounts
           )
         )
         self
@@ -71,7 +68,7 @@ module Order
       end
 
       # @api private
-      def on_discount_applied(event); end
+      def on_discounts_applied(event); end
 
       # @api private
       def on_products_added(event); end

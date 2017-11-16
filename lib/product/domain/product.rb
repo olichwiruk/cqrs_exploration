@@ -17,7 +17,7 @@ module Product
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
             aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: SecureRandom.uuid,
+            aggregate_uuid: product.uuid,
             name: product.name,
             quantity: product.quantity,
             price: product.price
@@ -41,12 +41,12 @@ module Product
         self
       end
 
-      def buy(bought_quantity)
+      def buy(quantity)
         apply_event(
           ::Product::Events::ProductBoughtEvent.new(
             aggregate_type: self.class.to_s.split('::').last.downcase,
             aggregate_uuid: uuid,
-            quantity: quantity - bought_quantity
+            quantity: quantity
           )
         )
         self
@@ -61,7 +61,7 @@ module Product
       end
 
       def on_product_bought(event)
-        self.quantity = event.quantity
+        self.quantity -= event.quantity
       end
 
       # @api private
