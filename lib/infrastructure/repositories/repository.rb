@@ -5,18 +5,15 @@ module Infrastructure
     module Repository
       # write
       def save(entity)
-        saved = domain_of(entity).new(
+        domain_of(entity).new(
           active_record.create!(entity.attributes)
         )
-        entity.commit
-        saved
       end
 
       def update(entity)
         domain_of(entity).new(
           active_record.update(entity.id, entity.attributes)
         )
-        entity.commit
       end
 
       def find_or_create_by(uuid:)
@@ -42,9 +39,9 @@ module Infrastructure
         )
       end
 
-      def build(params = {})
+      def build(uuid: SecureRandom.uuid, params:)
         domain.initialize(
-          active_record.new(params)
+          active_record.new(params.merge(uuid: uuid))
         )
       end
 

@@ -6,37 +6,38 @@ module Infrastructure
       class << self
         def save(order, products)
           products.each do |product|
-            line = {
+            line_db = find_line(order.id, product.id)
+
+            if line_db.nil?
+              AR::OrderLine.create!(
+                order_id: order.id,
+                product_id: product.id,
+                quantity: product.quantity
+              )
+            else
+              line_db.update_attributes(
+                quantity: line_db.quantity + product.quantity
+              )
+            end
+          end
+        end
+
+        def change(order, products)
+          lines = {}
+          products.each do |product|
+            line_id = AR::OrderLine.where(
+              order_id: order.id,
+              product_id: product.id
+            ).first.id
+
+            lines[line_id] = {
               order_id: order.id,
               product_id: product.id,
               quantity: product.quantity
             }
-            line_db = AR::OrderLine.find_by(
-              order_id: order.id,
-              product_id: product.id
-            )
-
-            create_or_update(line_db, line)
           end
-
-          order.commit
-        end
-
-        def change(order, products)
-          products.each do |product|
-            id = product.id
-            quantity = product.quantity
-            line_db = AR::OrderLine.find_by(
-              order_id: order.id,
-              product_id: id
-            )
-            if quantity.to_i.zero?
-              line_db.destroy!
-            else
-              line_db.update!(quantity: quantity)
-            end
-          end
-          order.commit
+          AR::OrderLine.update(lines.keys, lines.values)
+          AR::OrderLine.where(quantity: 0).delete_all
         end
 
         def build(params)
@@ -55,12 +56,11 @@ module Infrastructure
         end
 
         # @api private
-        def create_or_update(line_db, line)
-          if line_db.nil?
-            AR::OrderLine.create!(line)
-          else
-            line_db.increment!(:quantity, line[:quantity])
-          end
+        def find_line(order_id, product_id)
+          AR::OrderLine.where(
+            order_id: order_id,
+            product_id: product_id
+          ).first
         end
       end
     end

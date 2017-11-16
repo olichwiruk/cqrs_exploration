@@ -5,8 +5,9 @@ module Order
     class AddProductsCommandHandler
       M = Dry::Monads
       OrdersRepo = Infrastructure::Repositories::OrdersRepository
-      OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
       ProductsRepo = Infrastructure::Repositories::ProductsRepository
+      OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
+      EventStore = Infrastructure::WriteRepo
 
       class << self
         def execute(command)
@@ -21,8 +22,9 @@ module Order
 
           order = OrdersRepo.find(order_id)
           order.add_products(products)
-          OrderLinesRepo.save(order, products)
 
+          OrderLinesRepo.save(order, products)
+          EventStore.commit(order.events)
           M.Right(true)
         end
 

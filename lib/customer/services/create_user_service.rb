@@ -6,25 +6,32 @@ module Customer
       class << self
         M = Dry::Monads
         UsersRepo = Infrastructure::Repositories::UsersRepository
+        EventStore = Infrastructure::WriteRepo
 
         def call(params)
           email_validation = validate_email(params[:email])
           params_validation = validate(params)
 
           if email_validation.success? && params_validation.success?
-            user = UsersRepo.build(params)
+            user = UsersRepo.build(params: params)
+            saved_user = UsersRepo.save(user)
 
             command = Order::Commands::CreateOrderCommand.new(
-              user_id: UsersRepo.save(user).id
+              user_id: saved_user.id
             )
+            EventStore.commit(user.events)
             result = Infrastructure::CommandBus.send(command)
 
-            email = "To: #{user.email} | #{user.name} - #{command.params[:user_id]}"
-            p email if result.success?
+            send_email(saved_user) if result.success?
             result
           else
             params_validation.success? ? email_validation : params_validation
           end
+        end
+
+        # @api private
+        def send_email(user)
+          p "To: #{user.email} | #{user.name} - #{user.id}"
         end
 
         # @api private

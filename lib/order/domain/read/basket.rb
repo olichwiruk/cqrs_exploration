@@ -4,13 +4,17 @@ module Order
   module Domain
     module Read
       class Basket < Disposable::Twin
-        DiscountsRepo = Infrastructure::Repositories::DiscountsRepository
+        feature Default
+
+        PricingService = ::Order::Services::Domain::PricingService
+        DiscountService = ::Order::Services::Domain::DiscountService
 
         property :id
-        property :order_id
+        property :user_id
         property :products
         property :discount
-        property :total_price
+        property :total_price, default: 0
+        property :final_price
 
         def attributes
           instance_variable_get(:@fields)
@@ -26,68 +30,22 @@ module Order
           basket
         end
 
-        def apply_discount(discount:)
-          self.discount = (self.discount || 0) + discount.value
-        end
-
-        def remove_discount(discount:)
-          self.discount -= discount.value
-        end
-
-        def add_products(products:)
-          price_before = total_price
-          price = 0
-          new_basket = self.products || {}
-
-          products.each do |product|
-            id = product.id.to_s
-            quantity = product.quantity
-            new_basket[id] = (new_basket[id] || 0) + quantity
-            price += quantity * product.price
-          end
-
-          self.products = new_basket
-          self.total_price = price
-
-          handle_total_price_discount(before_price: price_before)
-          self
-        end
-
-        def change_order(products:)
-          price_before = total_price
-          price = 0
+        def build(products_quantity)
           new_basket = {}
-
-          products = products.reject do |product|
-            product.quantity.zero?
-          end
-
-          products.each do |product|
+          products_quantity.each do |product|
             id = product.id
             quantity = product.quantity
             new_basket[id] = quantity
-            price += quantity * product.price
           end
-
           self.products = new_basket
-          self.total_price = price
 
-          handle_total_price_discount(before_price: price_before)
-          self
-        end
-
-        # @api private
-        def handle_total_price_discount(border_price: 50, before_price:)
-          discount = DiscountsRepo.find_by(
-            name: 'total_price_discount'
+          self.discount = DiscountService.new(user_id).sum_applicable_discounts
+          self.total_price = PricingService.calculate_total(
+            products_quantity: products_quantity
           )
-          if total_price > border_price &&
-              (before_price.nil? || before_price <= border_price)
-            apply_discount(discount: discount)
-          elsif total_price <= border_price &&
-              (!before_price.nil? && before_price > border_price)
-            remove_discount(discount: discount)
-          end
+          self.final_price = total_price * (1 - discount / 100.0)
+
+          self
         end
       end
     end

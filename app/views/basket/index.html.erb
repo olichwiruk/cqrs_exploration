@@ -4,7 +4,7 @@
 <% end %>
 <% f = form(
     view_model.products,
-    basket_path(view_model.order_id),
+    basket_path(view_model.basket.user_id),
     method: 'put',
     csrf_token: view_model.csrf_token,
     csrf_token_name: 'authenticity_token',
@@ -21,15 +21,15 @@
     <del>
       <%= product['quantity'] * product['price'] %> USD
     </del>
-    <%= product['quantity'] * product['price'] * (1 - view_model.discount / 100.0) %> USD
+    <%= product['quantity'] * product['price'] * (1 - view_model.basket.discount / 100.0) %> USD
     <br>
   <% end %>
   <br>
   <%= f.submit value: 'Change' unless view_model.products.empty? %>
 <%= f.end %>
 <br>
-discount: <%= view_model.discount %>%<br>
-total: <del><%= view_model.total %> USD</del> <%= view_model.total * (1 - view_model.discount / 100.0) %> USD
+discount: <%= view_model.basket.discount %>%<br>
+total: <del><%= view_model.basket.total_price %> USD</del> <%= view_model.basket.final_price %> USD
 
 <% unless view_model.products.empty? %>
   <% f = form(
@@ -40,8 +40,8 @@ total: <del><%= view_model.total %> USD</del> <%= view_model.total * (1 - view_m
       errors: []
   ) %>
     <%= f.start %>
-    <%= f.hidden value: view_model.order_id,
-                name: 'order_id' %>
+    <%= f.hidden value: view_model.basket.user_id,
+                name: 'user_id' %>
     <%= f.hidden value: view_model.products,
                 name: 'products' %>
     <%= f.select(

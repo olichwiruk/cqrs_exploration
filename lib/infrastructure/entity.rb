@@ -6,6 +6,8 @@ module Infrastructure
       @applied_events ||= []
     end
 
+    alias events applied_events
+
     def attributes
       instance_variable_get(:@fields)
     end
@@ -13,13 +15,6 @@ module Infrastructure
     def apply_event(event)
       do_apply event
       applied_events << event
-    end
-
-    def commit
-      while (event = applied_events.shift)
-        save event
-        publish event
-      end
     end
 
     # @api private
@@ -31,28 +26,6 @@ module Infrastructure
     # @api private
     def event_name(event)
       event.class.name.demodulize.underscore.to_s.sub(/_event/, '')
-    end
-
-    # @api private
-    def save(event)
-      event_to_store = Infrastructure::Event.new(
-        aggregate_type: event.aggregate_type,
-        name: event_name(event),
-        aggregate_uuid: event.aggregate_uuid,
-        data: event.values
-      )
-      Infrastructure::WriteRepo.add_event(event_to_store)
-    end
-
-    # @api private
-    def publish(event)
-      name = event_name(event)
-      handlers = Infrastructure::EventBus.handlers(name)
-      return if handlers.nil?
-
-      handlers.each do |handler|
-        handler.__send__(name, event)
-      end
     end
   end
 end

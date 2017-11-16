@@ -6,6 +6,7 @@ module Customer
       class << self
         M = Dry::Monads
         UsersRepo = Infrastructure::Repositories::UsersRepository
+        EventStore = Infrastructure::WriteRepo
 
         def call(params)
           email_validation = validate_email(params[:id], params[:user][:email])
@@ -14,6 +15,7 @@ module Customer
           if email_validation.success? && params_validation.success?
             user = UsersRepo.find(params[:id])
             user.update(params[:user])
+            EventStore.commit(user.events)
             UsersRepo.update(user)
             M.Right(true)
           else

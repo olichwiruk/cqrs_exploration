@@ -5,8 +5,9 @@ module Order
     class ChangeOrderCommandHandler
       M = Dry::Monads
       OrdersRepo = Infrastructure::Repositories::OrdersRepository
-      OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
       ProductsRepo = Infrastructure::Repositories::ProductsRepository
+      OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
+      EventStore = Infrastructure::WriteRepo
 
       class << self
         def execute(command)
@@ -14,6 +15,7 @@ module Order
 
           return M.Left(validation_result.errors) unless validation_result.success?
 
+          p validation_result.output
           order_id = validation_result.output[:order_id]
           basket = validation_result.output[:basket]
 
@@ -21,7 +23,9 @@ module Order
 
           order = OrdersRepo.find(order_id)
           order.change_order(products)
+          p order
           OrderLinesRepo.change(order, products)
+          EventStore.commit(order.events)
 
           M.Right(true)
         end

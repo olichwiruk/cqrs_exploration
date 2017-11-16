@@ -6,24 +6,34 @@ module Order
       class << self
         M = Dry::Monads
         BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
+        OrdersRepo = Infrastructure::Repositories::OrdersRepository
+        LoyaltyCardsRepo = Infrastructure::Repositories::LoyaltyCardsRepository
 
         def call(params)
           payment_validation = validate_payment(params['payment_method'])
           if payment_validation.success?
-            order_id = params['order_id'].to_i
+            user_id = params['user_id'].to_i
+            basket = BasketsRepo.find_by(user_id: user_id)
+            order = OrdersRepo.find_current(user_id)
+
             command = Order::Commands::CheckoutOrderCommand.new(
-              order_id: order_id
+              order_id: order.id
             )
             result = Infrastructure::CommandBus.send(command)
 
-            basket = BasketsRepo.find_by(order_id: order_id)
-            email = "Your order: #{basket.products} | " \
-              "#{basket.total_price} USD, #{basket.discount}%"
-            p email if result.success?
+            LoyaltyCardsRepo.save(user_id: user_id)
+            send_email(basket) if result.success?
             result
           else
             payment_validation
           end
+        end
+
+        # @api private
+        def send_email(basket)
+          p "Your order: #{basket.products} | " \
+            "#{basket.total_price} USD, #{basket.discount}% " \
+            "| Final: #{basket.final_price} USD"
         end
 
         # @api private

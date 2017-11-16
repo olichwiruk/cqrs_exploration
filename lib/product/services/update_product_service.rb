@@ -6,6 +6,7 @@ module Product
       class << self
         M = Dry::Monads
         ProductsRepo = Infrastructure::Repositories::ProductsRepository
+        EventStore = Infrastructure::WriteRepo
 
         def call(params)
           params[:product][:quantity] = params[:product][:quantity].to_i
@@ -15,6 +16,7 @@ module Product
 
           product = ProductsRepo.find(params[:id])
           product.update(params[:product])
+          EventStore.commit(product.events)
           ProductsRepo.update(product)
 
           params_validation

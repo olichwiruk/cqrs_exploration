@@ -9,11 +9,23 @@ module Infrastructure
       class << self
         # read
         def find_current(user_id)
-          order = Order::Domain::Order.new(
-            AR::Order.where(user_id: user_id).last
-          )
+          order = find_last(user_id)
           order unless Infrastructure::Repositories::OrderProcessesRepository
               .load(order.uuid).completed
+        end
+
+        def find_last(user_id)
+          Order::Domain::Order.new(
+            AR::Order.where(user_id: user_id).last
+          )
+        end
+
+        def first_order?(order)
+          first_order = Order::Domain::Order.new(
+            AR::Order.where(user_id: order.user_id).first
+          )
+
+          order.id == first_order.id
         end
       end
     end
