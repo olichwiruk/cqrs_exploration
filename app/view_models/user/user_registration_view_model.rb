@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Users
+module User
   class UserRegistrationViewModel
     attr_reader :user, :csrf_token, :errors
 
