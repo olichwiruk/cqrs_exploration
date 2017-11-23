@@ -7,8 +7,8 @@ class ProductsController < ApplicationController
   def index
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/products/index.html.erb',
-      view_model: Products::ProductsListViewModel.new(
-        products: ProductsRepo.all,
+      view_model: Product::ProductsListViewModel.new(
+        products: container['repositories.products'].products.to_a,
         current_user_id: session[:user_id],
         csrf_token: form_authenticity_token
       )
@@ -23,14 +23,14 @@ class ProductsController < ApplicationController
   end
 
   def add_product_view_model
-    @view_model ||= Products::AddProductViewModel.new(
+    @view_model ||= Product::AddProductViewModel.new(
       product: Product::ReadModels::Product.new,
       csrf_token: form_authenticity_token
     )
   end
 
   def create
-    result = Product::Services::AddProductService.call(params[:product].permit!)
+    result = container['services.add_product_service'].call(params[:product].permit!)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -62,7 +62,7 @@ class ProductsController < ApplicationController
   end
 
   def edition_view_model
-    @view_model ||= Products::AddProductViewModel.new(
+    @view_model ||= Product::AddProductViewModel.new(
       product: Product::ReadModels::Product.new(
         AR::Product.find(params[:id]).attributes
       ),
