@@ -29,7 +29,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    result = Customer::Services::CreateUserService.call(params[:user].permit!)
+    result = container['services.create_user_service'].call(params[:user].permit!)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -70,7 +70,7 @@ class UsersController < ApplicationController
   end
 
   def update
-    result = Customer::Services::UpdateUserService.call(params)
+    result = container['services.update_user_service'].call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do

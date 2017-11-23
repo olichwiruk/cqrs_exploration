@@ -4,12 +4,12 @@ module Product
   module Services
     class AddProductService
 
-      def initialize(product_repo)
+      def initialize(event_store, product_repo)
+        @event_store = event_store
         @product_repo = product_repo
       end
 
       M = Dry::Monads
-      EventStore = Infrastructure::WriteRepo
 
       def call(params)
         params[:quantity] = params[:quantity].to_i
@@ -17,11 +17,10 @@ module Product
         params_validation = validate(params)
         return params_validation unless params_validation.success?
 
-        # product = ProductsRepo.build(params: params)
         product = Product::Domain::ProductRom.initialize(
           params.to_h.symbolize_keys
         )
-        EventStore.commit(product.events)
+        @event_store.commit(product.events)
         @product_repo.create(product.instance_values.symbolize_keys)
 
         params_validation
