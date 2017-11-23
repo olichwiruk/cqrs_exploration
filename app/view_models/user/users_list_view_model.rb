@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Users
+module User
   class UsersListViewModel
     attr_reader :users, :current_user_id
 

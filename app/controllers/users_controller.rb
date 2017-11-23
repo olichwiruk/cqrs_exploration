@@ -7,8 +7,8 @@ class UsersController < ApplicationController
   def index
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/index.html.erb',
-      view_model: Users::UsersListViewModel.new(
-        users: UsersRepo.all,
+      view_model: User::UsersListViewModel.new(
+        users: container['repositories.users'].users.to_a,
         current_user_id: session[:user_id]
       )
     ).html_safe
@@ -22,7 +22,7 @@ class UsersController < ApplicationController
   end
 
   def registration_view_model
-    @view_model ||= Users::UserRegistrationViewModel.new(
+    @view_model ||= User::UserRegistrationViewModel.new(
       user: Customer::ReadModels::User.new,
       csrf_token: form_authenticity_token
     )
@@ -61,7 +61,7 @@ class UsersController < ApplicationController
   end
 
   def edition_view_model
-    @view_model ||= Users::UserRegistrationViewModel.new(
+    @view_model ||= User::UserRegistrationViewModel.new(
       user: Customer::ReadModels::User.new(
         AR::User.find(params[:id]).attributes
       ),
@@ -99,7 +99,7 @@ class UsersController < ApplicationController
   def login_view
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
-      view_model: Users::UserLoginViewModel.new(
+      view_model: User::UserLoginViewModel.new(
         users: UsersRepo.all,
         csrf_token: form_authenticity_token
       )

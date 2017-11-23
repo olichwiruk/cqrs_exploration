@@ -35,6 +35,12 @@ MyApp.configure do |container|
     )
   end
 
+  container.register('repositories.users') do
+    Customer::Repositories::UserRepo.new(
+      container['persistence']
+    )
+  end
+
   container.register('services.create_user_service') do
     Customer::Services::CreateUserService.new(
       container['infrastructure.event_store']
