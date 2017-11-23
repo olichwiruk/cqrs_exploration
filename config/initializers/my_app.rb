@@ -12,10 +12,20 @@ MyApp.configure do |container|
   end
 
   container.register('repositories.products') do
-    Product::Repositories::ProductRepo.new(container['persistence'])
+    Product::Repositories::ProductRepo.new(
+      container['persistence']
+    )
   end
 
   container.register('services.add_product_service') do
-    Product::Services::AddProductService.new(container['repositories.products'])
+    Product::Services::AddProductService.new(
+      container['repositories.products']
+    )
+  end
+
+  container.register('services.update_product_service') do
+    Product::Services::UpdateProductService.new(
+      container['repositories.products']
+    )
   end
 end

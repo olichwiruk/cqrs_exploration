@@ -64,14 +64,14 @@ class ProductsController < ApplicationController
   def edition_view_model
     @view_model ||= Product::AddProductViewModel.new(
       product: Product::ReadModels::Product.new(
-        AR::Product.find(params[:id]).attributes
+        container['repositories.products'].by_id(params[:id])
       ),
       csrf_token: form_authenticity_token
     )
   end
 
   def update
-    result = Product::Services::UpdateProductService.call(params)
+    result = container['services.update_product_service'].call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -81,8 +81,7 @@ class ProductsController < ApplicationController
       handler.on_failure = proc do |errors|
         update_edition_view_model(
           product: Product::ReadModels::Product.new(
-            params[:product].merge(id: params[:id]).permit!
-          ),
+            params[:product].merge(id: params[:id]).permit!.to_h          ),
           csrf_token: form_authenticity_token,
           errors: errors
         )
