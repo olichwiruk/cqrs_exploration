@@ -4,7 +4,7 @@ module Product
   module ReadModels
     class Product < Dry::Struct
       include Infrastructure::Types
-      constructor_type :symbolized
+      constructor_type :schema
 
       attribute :id, Infrastructure::Types::Int
       attribute :name, Infrastructure::Types::String

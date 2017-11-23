@@ -4,7 +4,7 @@ module Order
   module ReadModels
     class Basket < Dry::Struct
       include Infrastructure::Types
-      constructor_type :symbolized
+      constructor_type :schema
 
       attribute :user_id, Infrastructure::Types::Int
       attribute :products, Infrastructure::Types::Hash
