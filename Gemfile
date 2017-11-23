@@ -37,8 +37,14 @@ gem 'dry-types'
 gem 'dry-struct'
 gem 'dry-validation'
 gem 'dry-monads'
+gem 'dry-container'
 gem 'formular'
 gem 'disposable'
+gem 'sequel'
+gem 'rom'
+gem 'rom-sql'
+gem 'rom-repository'
+gem 'rom-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
