@@ -2,7 +2,6 @@
 
 class ProductsController < ApplicationController
   include Infrastructure::ResultHandler
-  ProductsRepo = Infrastructure::Repositories::ProductsRepository
 
   def index
     render html: Infrastructure::TemplateRenderer.render(
