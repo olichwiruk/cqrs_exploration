@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Products
+module Product
   class AddProductViewModel
     attr_reader :product, :csrf_token, :errors
 

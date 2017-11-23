@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Products
+module Product
   class ProductsListViewModel
     attr_reader :products, :basket_hash, :current_user_id, :csrf_token, :errors
 
