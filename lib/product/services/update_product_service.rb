@@ -3,44 +3,51 @@
 module Product
   module Services
     class UpdateProductService
-      class << self
-        M = Dry::Monads
-        ProductsRepo = Infrastructure::Repositories::ProductsRepository
-        EventStore = Infrastructure::WriteRepo
 
-        def call(params)
-          params[:product][:quantity] = params[:product][:quantity].to_i
-          params[:product][:price] = params[:product][:price].to_i
-          params_validation = validate(params[:product])
-          return params_validation unless params_validation.success?
+      def initialize(product_repo)
+        @product_repo = product_repo
+      end
 
-          product = ProductsRepo.find(params[:id])
-          product.update(params[:product])
-          EventStore.commit(product.events)
-          ProductsRepo.update(product)
+      M = Dry::Monads
+      EventStore = Infrastructure::WriteRepo
 
-          params_validation
+      def call(params)
+        params[:product][:quantity] = params[:product][:quantity].to_i
+        params[:product][:price] = params[:product][:price].to_i
+        params_validation = validate(params[:product])
+        return params_validation unless params_validation.success?
+
+        product = Product::Domain::ProductRom.new(
+          @product_repo.by_id(params[:id])
+        )
+        product.update(params[:product].permit!.to_h.symbolize_keys)
+        EventStore.commit(product.events)
+        @product_repo.update(
+          params[:id],
+          product.instance_values.symbolize_keys
+        )
+
+        params_validation
+      end
+
+      # @api private
+      Validator = Dry::Validation.Form do
+        configure do
+          config.messages = :i18n
         end
 
-        # @api private
-        Validator = Dry::Validation.Form do
-          configure do
-            config.messages = :i18n
-          end
+        required(:name).filled(:str?)
+        required(:quantity).filled(:int?, gteq?: 0)
+        required(:price).filled(:int?, gt?: 0)
+      end
 
-          required(:name).filled(:str?)
-          required(:quantity).filled(:int?, gteq?: 0)
-          required(:price).filled(:int?, gt?: 0)
-        end
-
-        # @api private
-        def validate(params)
-          validator_result = Validator.call(params)
-          if validator_result.success?
-            M.Right(true)
-          else
-            M.Left(validator_result.errors)
-          end
+      # @api private
+      def validate(params)
+        validator_result = Validator.call(params)
+        if validator_result.success?
+          M.Right(true)
+        else
+          M.Left(validator_result.errors)
         end
       end
     end

@@ -7,6 +7,14 @@ module Product
 
       attr_reader :id, :uuid, :name, :quantity, :price
 
+      def initialize(rom_struct)
+        @id = rom_struct.id
+        @uuid = rom_struct.uuid
+        @name = rom_struct.name
+        @quantity = rom_struct.quantity
+        @price = rom_struct.price
+      end
+
       def self.initialize(name:, quantity:, price:)
         product = new(OpenStruct.new)
         product.apply_event(
@@ -21,24 +29,13 @@ module Product
         product
       end
 
-      def initialize(rom_struct)
-        @id = rom_struct.id
-        @uuid = rom_struct.uuid
-        @name = rom_struct.name
-        @quantity = rom_struct.quantity
-        @price = rom_struct.price
-      end
-
-      def update(product_params)
-        new_name = product_params['name']
-        new_quantity = product_params['quantity']
-        new_price = product_params['price']
+      def update(name:, quantity:, price:)
         event = ::Product::Events::ProductUpdatedEvent.new(
           aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_uuid: uuid,
-          name: update_attr(name, new_name),
-          quantity: update_attr(quantity, new_quantity),
-          price: update_attr(price, new_price)
+          aggregate_uuid: @uuid,
+          name: update_attr(@name, name),
+          quantity: update_attr(@quantity, quantity),
+          price: update_attr(@price, price)
         )
         apply_event(event) unless event.values.empty?
         self
@@ -63,7 +60,9 @@ module Product
       end
 
       def on_product_updated(event)
-        update_from_hash(event.values)
+        @name = event.name unless event.name.nil?
+        @price = event.price unless event.price.nil?
+        @quantity = event.quantity unless event.quantity.nil?
       end
 
       def on_product_bought(event)
