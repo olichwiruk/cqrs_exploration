@@ -3,7 +3,6 @@
 module Product
   module Services
     class AddProductService
-
       def initialize(event_store, product_repo)
         @event_store = event_store
         @product_repo = product_repo
@@ -20,8 +19,8 @@ module Product
         product = Product::Domain::ProductRom.initialize(
           params.to_h.symbolize_keys
         )
-        @event_store.commit(product.events)
         @product_repo.create(product.instance_values.symbolize_keys)
+        @event_store.commit(product.events)
 
         params_validation
       end

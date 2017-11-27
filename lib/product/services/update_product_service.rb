@@ -3,7 +3,6 @@
 module Product
   module Services
     class UpdateProductService
-
       def initialize(event_store, product_repo)
         @event_store = event_store
         @product_repo = product_repo
@@ -21,11 +20,11 @@ module Product
           @product_repo.by_id(params[:id])
         )
         product.update(params[:product].permit!.to_h.symbolize_keys)
-        @event_store.commit(product.events)
         @product_repo.update(
           params[:id],
           product.instance_values.symbolize_keys
         )
+        @event_store.commit(product.events)
 
         params_validation
       end
