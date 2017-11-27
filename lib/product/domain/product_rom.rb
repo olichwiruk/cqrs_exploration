@@ -2,21 +2,12 @@
 
 module Product
   module Domain
-    class ProductRom
+    class ProductRom < ROM::Struct
       include Infrastructure::Entity
-
       attr_reader :id, :uuid, :name, :quantity, :price
 
-      def initialize(rom_struct)
-        @id = rom_struct.id
-        @uuid = rom_struct.uuid
-        @name = rom_struct.name
-        @quantity = rom_struct.quantity
-        @price = rom_struct.price
-      end
-
       def self.initialize(name:, quantity:, price:)
-        product = new(OpenStruct.new)
+        product = new
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
             name: name,
@@ -57,13 +48,13 @@ module Product
       end
 
       def on_product_updated(event)
-        @name = event.name unless event.name.nil?
-        @price = event.price unless event.price.nil?
-        @quantity = event.quantity unless event.quantity.nil?
+        @name = event.name
+        @price = event.price
+        @quantity = event.quantity
       end
 
       def on_product_bought(event)
-        self.quantity -= event.quantity
+        @quantity -= event.quantity
       end
     end
   end
