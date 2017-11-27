@@ -43,7 +43,8 @@ MyApp.configure do |container|
 
   container.register('services.create_user_service') do
     Customer::Services::CreateUserService.new(
-      container['infrastructure.event_store']
+      container['infrastructure.event_store'],
+      container['repositories.users']
     )
   end
 

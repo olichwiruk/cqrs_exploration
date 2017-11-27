@@ -2,7 +2,6 @@
 
 class UsersController < ApplicationController
   include Infrastructure::ResultHandler
-  UsersRepo = Infrastructure::Repositories::UsersRepository
 
   def index
     render html: Infrastructure::TemplateRenderer.render(
@@ -100,7 +99,7 @@ class UsersController < ApplicationController
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/users/login.html.erb',
       view_model: User::UserLoginViewModel.new(
-        users: UsersRepo.all,
+        users: container['repositories.users'].users.to_a,
         csrf_token: form_authenticity_token
       )
     ).html_safe

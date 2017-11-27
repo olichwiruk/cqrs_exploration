@@ -3,8 +3,9 @@
 module Customer
   module Services
     class CreateUserService
-      def initialize(event_store)
+      def initialize(event_store, user_repo)
         @event_store = event_store
+        @user_repo = user_repo
       end
 
       M = Dry::Monads
@@ -15,8 +16,10 @@ module Customer
         params_validation = validate(params)
 
         if email_validation.success? && params_validation.success?
-          user = UsersRepo.build(params: params)
-          saved_user = UsersRepo.save(user)
+          user = Customer::Domain::UserRom.initialize(
+            params.to_h.symbolize_keys
+          )
+          @user_repo.create(user.instance_values.symbolize_keys)
           @event_store.commit(user.events)
 
           # command = Order::Commands::CreateOrderCommand.new(
