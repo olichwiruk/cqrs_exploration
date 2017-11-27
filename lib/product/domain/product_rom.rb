@@ -33,9 +33,9 @@ module Product
         event = ::Product::Events::ProductUpdatedEvent.new(
           aggregate_type: self.class.to_s.split('::').last.downcase,
           aggregate_uuid: @uuid,
-          name: update_attr(@name, name),
-          quantity: update_attr(@quantity, quantity),
-          price: update_attr(@price, price)
+          name: name,
+          quantity: quantity,
+          price: price
         )
         apply_event(event) unless event.values.empty?
         self
@@ -67,11 +67,6 @@ module Product
 
       def on_product_bought(event)
         self.quantity -= event.quantity
-      end
-
-      # @api private
-      def update_attr(attr, new_attr)
-        attr.eql?(new_attr) ? nil : new_attr
       end
     end
   end

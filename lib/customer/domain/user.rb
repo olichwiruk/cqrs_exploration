@@ -30,8 +30,8 @@ module Customer
         event = Customer::Events::UserUpdatedEvent.new(
           aggregate_type: self.class.to_s.split('::').last.downcase,
           aggregate_uuid: uuid,
-          name: update_attr(name, new_name),
-          email: update_attr(email, new_email)
+          name: new_name,
+          email: new_email
         )
         apply_event(event) unless event.values.empty?
         self
@@ -43,11 +43,6 @@ module Customer
 
       def on_user_updated(event)
         update_from_hash(event.values)
-      end
-
-      # @api private
-      def update_attr(attr, new_attr)
-        attr.eql?(new_attr) ? nil : new_attr
       end
     end
   end
