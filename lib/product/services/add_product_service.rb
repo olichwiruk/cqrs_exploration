@@ -16,7 +16,7 @@ module Product
         params_validation = validate(params)
         return params_validation unless params_validation.success?
 
-        product = Product::Domain::ProductRom.initialize(
+        product = Product::Domain::Product.initialize(
           params.to_h.symbolize_keys
         )
         @product_repo.create(product.instance_values.symbolize_keys)
