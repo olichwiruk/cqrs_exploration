@@ -16,7 +16,7 @@ module Infrastructure
       'order_checked_out' =>
       ['Order::ProcessManagers::OrderProcessManagerRouter',
        'Order::OrderViewModelGenerator',
-       'Product::Services::UpdateWarehouseService']
+       'Product::OrderCheckedOutEventHandler']
     }
 
     def self.handlers(event_name)
