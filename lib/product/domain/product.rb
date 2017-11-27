@@ -2,50 +2,38 @@
 
 module Product
   module Domain
-    class Product < Disposable::Twin
+    class Product < ROM::Struct
       include Infrastructure::Entity
-      feature Default
+      attr_reader :id, :uuid, :name, :quantity, :price
 
-      property :id
-      property :uuid
-      property :name
-      property :quantity
-      property :price
-
-      def self.initialize(model)
-        product = new(model)
+      def self.initialize(name:, quantity:, price:)
+        product = new
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
-            aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: product.uuid,
-            name: product.name,
-            quantity: product.quantity,
-            price: product.price
+            name: name,
+            quantity: quantity,
+            price: price
           )
         )
         product
       end
 
-      def update(product_params)
-        new_name = product_params['name']
-        new_quantity = product_params['quantity']
-        new_price = product_params['price']
-        event = ::Product::Events::ProductUpdatedEvent.new(
-          aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_uuid: uuid,
-          name: update_attr(name, new_name),
-          quantity: update_attr(quantity, new_quantity),
-          price: update_attr(price, new_price)
+      def update(name:, quantity:, price:)
+        apply_event(
+          ::Product::Events::ProductUpdatedEvent.new(
+            aggregate_uuid: @uuid,
+            name: name,
+            quantity: quantity,
+            price: price
+          )
         )
-        apply_event(event) unless event.values.empty?
         self
       end
 
       def buy(quantity)
         apply_event(
           ::Product::Events::ProductBoughtEvent.new(
-            aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_uuid: uuid,
+            aggregate_uuid: @uuid,
             quantity: quantity
           )
         )
@@ -53,20 +41,20 @@ module Product
       end
 
       def on_product_created(event)
-        self.uuid = event.aggregate_uuid
+        @uuid = event.aggregate_uuid
+        @name = event.name
+        @price = event.price
+        @quantity = event.quantity
       end
 
       def on_product_updated(event)
-        update_from_hash(event.values)
+        @name = event.name
+        @price = event.price
+        @quantity = event.quantity
       end
 
       def on_product_bought(event)
-        self.quantity -= event.quantity
-      end
-
-      # @api private
-      def update_attr(attr, new_attr)
-        attr.eql?(new_attr) ? nil : new_attr
+        @quantity -= event.quantity
       end
     end
   end

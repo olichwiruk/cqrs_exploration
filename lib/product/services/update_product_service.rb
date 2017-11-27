@@ -16,7 +16,7 @@ module Product
         params_validation = validate(params[:product])
         return params_validation unless params_validation.success?
 
-        product = Product::Domain::ProductRom.new(
+        product = Product::Domain::Product.new(
           @product_repo.by_id(params[:id])
         )
         product.update(params[:product].permit!.to_h.symbolize_keys)
