@@ -4,6 +4,20 @@ module Infrastructure
   class EventRepo < ROM::Repository[:events]
     commands :create
 
+    class << self
+      attr_reader :aggregate_type
+
+      def [](agg_type)
+        # klass = super(:events)
+        # klass.define_singleton_method(:aggregate_type) do
+        #   agg_type.to_s
+        # end
+        # klass
+        @aggregate_type = agg_type.to_s
+        self
+      end
+    end
+
     def commit(events)
       while (event = events.shift)
         save event
@@ -13,8 +27,8 @@ module Infrastructure
 
     # @api private
     def save(event)
-      self.create(
-        aggregate_type: event.aggregate_type,
+      create(
+        aggregate_type: self.class.aggregate_type,
         aggregate_uuid: event.aggregate_uuid,
         event_name: event_name(event),
         data: event.values.to_s,

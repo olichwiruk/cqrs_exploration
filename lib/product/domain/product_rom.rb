@@ -19,8 +19,6 @@ module Product
         product = new(OpenStruct.new)
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
-            aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: SecureRandom.uuid,
             name: name,
             quantity: quantity,
             price: price
@@ -30,22 +28,21 @@ module Product
       end
 
       def update(name:, quantity:, price:)
-        event = ::Product::Events::ProductUpdatedEvent.new(
-          aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_uuid: @uuid,
-          name: name,
-          quantity: quantity,
-          price: price
+        apply_event(
+          ::Product::Events::ProductUpdatedEvent.new(
+            aggregate_uuid: @uuid,
+            name: name,
+            quantity: quantity,
+            price: price
+          )
         )
-        apply_event(event) unless event.values.empty?
         self
       end
 
       def buy(quantity)
         apply_event(
           ::Product::Events::ProductBoughtEvent.new(
-            aggregate_type: self.class.to_s.split('::').last.downcase,
-            aggregate_uuid: uuid,
+            aggregate_uuid: @uuid,
             quantity: quantity
           )
         )
