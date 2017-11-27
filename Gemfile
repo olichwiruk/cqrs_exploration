@@ -40,11 +40,11 @@ gem 'dry-monads'
 gem 'dry-container'
 gem 'formular'
 gem 'disposable'
-gem 'sequel'
 gem 'rom'
+gem 'rom-rails'
 gem 'rom-sql'
 gem 'rom-repository'
-gem 'rom-rails'
+gem 'sequel'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

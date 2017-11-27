@@ -3,4 +3,16 @@
 
 require_relative 'config/application'
 
+namespace :db do
+  task :setup do
+    ROM::SQL::RakeSupport.env = ROM.container(
+      :sql,
+      "sqlite:/home/marcin/Projects/Rails/cqrs_exploration/db/development.db",
+    )
+  end
+end
+
 Rails.application.load_tasks
+
+require 'rom/sql/rake_task'
+require 'rom'

@@ -12,7 +12,7 @@ module Product
       attribute :price, Infrastructure::Types::Int
 
       def values
-        instance_values.without('aggregate_uuid', 'aggregate_type')
+        instance_values.without(*%w(aggregate_uuid aggregate_type))
       end
     end
   end
