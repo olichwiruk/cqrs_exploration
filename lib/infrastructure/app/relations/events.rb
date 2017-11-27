@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-class Products < ROM::Relation[:sql]
+class Events < ROM::Relation[:sql]
   schema(infer: true)
 end
