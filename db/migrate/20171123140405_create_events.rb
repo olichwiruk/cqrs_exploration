@@ -1,6 +1,6 @@
 ROM::SQL.migration do
   change do
-    create_table :write_repo do
+    create_table :events do
       primary_key :id
       column :aggregate_type, String, null: false
       column :aggregate_uuid, String, null: false

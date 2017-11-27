@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 module Infrastructure
-  class EventStore
-
-    def initialize(write_repo)
-      @write_repo = write_repo
-    end
+  class EventRepo < ROM::Repository[:events]
+    commands :create
 
     def commit(events)
       while (event = events.shift)
@@ -16,7 +13,7 @@ module Infrastructure
 
     # @api private
     def save(event)
-      @write_repo.create(
+      self.create(
         aggregate_type: event.aggregate_type,
         aggregate_uuid: event.aggregate_uuid,
         event_name: event_name(event),
