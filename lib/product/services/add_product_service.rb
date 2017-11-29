@@ -3,26 +3,26 @@
 module Product
   module Services
     class AddProductService
+      M = Dry::Monads
+      attr_reader :event_store, :product_repo
+
       def initialize(event_store, product_repo)
         @event_store = event_store
         @product_repo = product_repo
       end
 
-      M = Dry::Monads
-
       def call(params)
-        params[:quantity] = params[:quantity].to_i
-        params[:price] = params[:price].to_i
-        params_validation = validate(params)
-        return params_validation unless params_validation.success?
+        validation_result = Validator.call(params.to_hash)
+        return M.Left(validation_result.errors) unless validation_result.success?
 
         product = Product::Domain::Product.initialize(
-          params.to_h.symbolize_keys
+          validation_result.output
         )
-        @product_repo.create(product.instance_values.symbolize_keys)
-        @event_store.commit(product.events)
 
-        params_validation
+        product_repo.create(product.to_hash)
+        event_store.commit(product.events)
+
+        M.Right(true)
       end
 
       # @api private
@@ -34,16 +34,6 @@ module Product
         required(:name).filled(:str?)
         required(:quantity).filled(:int?, gteq?: 0)
         required(:price).filled(:int?, gt?: 0)
-      end
-
-      # @api private
-      def validate(params)
-        validator_result = Validator.call(params)
-        if validator_result.success?
-          M.Right(true)
-        else
-          M.Left(validator_result.errors)
-        end
       end
     end
   end

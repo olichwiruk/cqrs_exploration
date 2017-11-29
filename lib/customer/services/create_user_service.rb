@@ -3,13 +3,13 @@
 module Customer
   module Services
     class CreateUserService
+      M = Dry::Monads
+      attr_reader :event_store, :user_repo
+
       def initialize(event_store, user_repo)
         @event_store = event_store
         @user_repo = user_repo
       end
-
-      M = Dry::Monads
-      UsersRepo = Infrastructure::Repositories::UsersRepository
 
       def call(params)
         email_validation = validate_email(params[:email])
@@ -19,8 +19,10 @@ module Customer
           user = Customer::Domain::UserRom.initialize(
             params.to_h.symbolize_keys
           )
-          @user_repo.create(user.instance_values.symbolize_keys)
-          @event_store.commit(user.events)
+          saved_user = user_repo.create(
+            user.instance_values.symbolize_keys
+          )
+          event_store.commit(user.events)
 
           # command = Order::Commands::CreateOrderCommand.new(
           #   user_id: saved_user.id
@@ -68,7 +70,7 @@ module Customer
 
       # @api private
       def validate_email(email)
-        if UsersRepo.available_email?(email)
+        if user_repo.available_email?(email)
           M.Right(true)
         else
           M.Left(email: ['email is taken'])
