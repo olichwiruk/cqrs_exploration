@@ -29,7 +29,7 @@ class ProductsController < ApplicationController
   end
 
   def create
-    result = container['services.add_product_service'].call(params[:product].permit!)
+    result = container['services.add_product_service'].call(params[:product])
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -39,7 +39,7 @@ class ProductsController < ApplicationController
       handler.on_failure = proc do |errors|
         update_add_product_view_model(
           product: Product::ReadModels::Product.new(
-            params[:product]
+            params[:product].to_h
           ),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -70,7 +70,8 @@ class ProductsController < ApplicationController
   end
 
   def update
-    result = container['services.update_product_service'].call(params)
+    result = container['services.update_product_service']
+      .call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
@@ -80,7 +81,8 @@ class ProductsController < ApplicationController
       handler.on_failure = proc do |errors|
         update_edition_view_model(
           product: Product::ReadModels::Product.new(
-            params[:product].merge(id: params[:id]).permit!.to_h          ),
+            params[:product].merge(id: params[:id]).to_h
+          ),
           csrf_token: form_authenticity_token,
           errors: errors
         )

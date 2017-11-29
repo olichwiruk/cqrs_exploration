@@ -50,7 +50,8 @@ MyApp.configure do |container|
 
   container.register('services.update_user_service') do
     Customer::Services::UpdateUserService.new(
-      container['repositories.event_repo']
+      container['repositories.event_repo.user'],
+      container['repositories.users']
     )
   end
 end

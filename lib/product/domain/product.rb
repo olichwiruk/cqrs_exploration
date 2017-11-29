@@ -4,7 +4,13 @@ module Product
   module Domain
     class Product < ROM::Struct
       include Infrastructure::Entity
-      attr_reader :id, :uuid, :name, :quantity, :price
+      constructor_type :schema
+
+      attribute :id, Infrastructure::Types::Coercible::Int
+      attribute :uuid, Infrastructure::Types::String
+      attribute :name, Infrastructure::Types::String
+      attribute :quantity, Infrastructure::Types::Coercible::Int
+      attribute :price, Infrastructure::Types::Coercible::Int
 
       def self.initialize(name:, quantity:, price:)
         product = new
@@ -21,7 +27,7 @@ module Product
       def update(name:, quantity:, price:)
         apply_event(
           ::Product::Events::ProductUpdatedEvent.new(
-            aggregate_uuid: @uuid,
+            aggregate_uuid: uuid,
             name: name,
             quantity: quantity,
             price: price
@@ -33,7 +39,7 @@ module Product
       def buy(quantity)
         apply_event(
           ::Product::Events::ProductBoughtEvent.new(
-            aggregate_uuid: @uuid,
+            aggregate_uuid: uuid,
             quantity: quantity
           )
         )

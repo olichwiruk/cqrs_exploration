@@ -38,7 +38,7 @@ class UsersController < ApplicationController
       handler.on_failure = proc do |errors|
         update_registration_view_model(
           user: Customer::ReadModels::User.new(
-            params[:user]
+            params[:user].to_h
           ),
           csrf_token: form_authenticity_token,
           errors: errors
@@ -62,7 +62,7 @@ class UsersController < ApplicationController
   def edition_view_model
     @view_model ||= User::UserRegistrationViewModel.new(
       user: Customer::ReadModels::User.new(
-        AR::User.find(params[:id]).attributes
+        container['repositories.users'].by_id(params[:id])
       ),
       csrf_token: form_authenticity_token
     )
@@ -79,7 +79,7 @@ class UsersController < ApplicationController
       handler.on_failure = proc do |errors|
         update_edition_view_model(
           user: Customer::ReadModels::User.new(
-            params[:user].merge(id: params[:id]).permit!
+            params[:user].merge(id: params[:id]).permit!.to_h
           ),
           csrf_token: form_authenticity_token,
           errors: errors
