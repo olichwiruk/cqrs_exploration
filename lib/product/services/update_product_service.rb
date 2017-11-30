@@ -12,13 +12,13 @@ module Product
       end
 
       def call(params)
-        validation_result = Validator.call(params[:product].to_hash)
+        validation_result = Validator.call(params[:product].to_h)
         return M.Left(validation_result.errors) unless validation_result.success?
 
         product = product_repo.by_id(params[:id])
         product.update(validation_result.output)
 
-        product_repo.update(params[:id], product.to_hash)
+        product_repo.update(params[:id], product.to_h)
         event_store.commit(product.events)
 
         M.Right(true)
