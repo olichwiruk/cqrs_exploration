@@ -2,47 +2,46 @@
 
 module Customer
   module Domain
-    class User < Disposable::Twin
+    class User < ROM::Struct
       include Infrastructure::Entity
-      feature Changed
+      constructor_type :schema
 
-      property :id
-      property :uuid
-      property :name
-      property :email
+      attribute :id, Infrastructure::Types::Coercible::Int
+      attribute :uuid, Infrastructure::Types::String
+      attribute :name, Infrastructure::Types::String
+      attribute :email, Infrastructure::Types::Email
 
-      def self.initialize(model)
-        user = new(model)
+      def self.initialize(name:, email:)
+        user = new
         user.apply_event(
           Customer::Events::UserCreatedEvent.new(
-            aggregate_type: to_s.split('::').last.downcase,
-            aggregate_uuid: user.uuid,
-            name: user.name,
-            email: user.email
+            name: name,
+            email: email
           )
         )
         user
       end
 
-      def update(user_params)
-        new_name = user_params['name']
-        new_email = user_params['email']
-        event = Customer::Events::UserUpdatedEvent.new(
-          aggregate_type: self.class.to_s.split('::').last.downcase,
-          aggregate_uuid: uuid,
-          name: new_name,
-          email: new_email
+      def update(name:, email:)
+        apply_event(
+          Customer::Events::UserUpdatedEvent.new(
+            aggregate_uuid: uuid,
+            name: name,
+            email: email
+          )
         )
-        apply_event(event) unless event.values.empty?
         self
       end
 
       def on_user_created(event)
-        self.uuid = event.aggregate_uuid
+        @uuid = event.aggregate_uuid
+        @name = event.name
+        @email = event.email
       end
 
       def on_user_updated(event)
-        update_from_hash(event.values)
+        @name = event.name
+        @email = event.email
       end
     end
   end

@@ -1,8 +1,9 @@
 <h3>Select user:</h3>
 
 <% f = form(
-    AR::User.new,
+    :user,
     login_user_path,
+    errors: []
   ) %>
   <%= f.start %>
   <%= f.hidden value: view_model.csrf_token,

@@ -13,27 +13,20 @@ module Customer
 
       def call(params)
         email_validation = validate_email(params[:email])
-        params_validation = validate(params)
+        params_validation_result = Validator.call(params.to_h)
+        fail_message = params_validation_result.failure? ? M.Left(params_validation_result.errors) : email_validation
 
-        if email_validation.success? && params_validation.success?
-          user = Customer::Domain::UserRom.initialize(
-            params.to_h.symbolize_keys
-          )
-          saved_user = user_repo.create(
-            user.instance_values.symbolize_keys
-          )
-          event_store.commit(user.events)
+        return fail_message if email_validation.failure? || params_validation_result.failure?
 
-          # command = Order::Commands::CreateOrderCommand.new(
-          #   user_id: saved_user.id
-          # )
-          # result = Infrastructure::CommandBus.send(command)
+        user = Customer::Domain::User.initialize(
+          params_validation_result.output
+        )
 
-          send_email(saved_user) # if result.success?
-          M.Right(true) # result
-        else
-          params_validation.success? ? email_validation : params_validation
-        end
+        saved_user = user_repo.create(user.to_h)
+        event_store.commit(user.events)
+
+        send_email(saved_user)
+        M.Right(true)
       end
 
       # @api private
@@ -45,27 +38,11 @@ module Customer
       Validator = Dry::Validation.Form do
         configure do
           config.messages = :i18n
-
-          def email?(value)
-            !VALID_EMAIL_REGEX.match(value).nil?
-          end
-
-          VALID_EMAIL_REGEX =
-            /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
+          predicates(Infrastructure::ValidationPredicates)
         end
 
         required(:name).filled(:str?)
         required(:email).filled(:str?, :email?)
-      end
-
-      # @api private
-      def validate(params)
-        validator_result = Validator.call(params)
-        if validator_result.success?
-          M.Right(true)
-        else
-          M.Left(validator_result.errors)
-        end
       end
 
       # @api private
