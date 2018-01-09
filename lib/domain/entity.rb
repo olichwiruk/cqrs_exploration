@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Infrastructure
+module Domain
   module Entity
     def applied_events
       @applied_events ||= []

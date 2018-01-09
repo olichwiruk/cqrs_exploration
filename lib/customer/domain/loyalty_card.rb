@@ -2,10 +2,10 @@
 
 module Customer
   module Domain
-    class LoyaltyCard < Disposable::Twin
-      property :id
-      property :user_id
-      property :discount
+    class LoyaltyCard < ::Domain::SchemaStruct
+      attribute :id, T::Coercible::Int
+      attribute :user_id, T::Coercible::Int
+      attribute :discount, T::Int
     end
   end
 end

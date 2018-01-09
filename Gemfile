@@ -5,7 +5,6 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.2'
 # Use sqlite3 as the database for Active Record
@@ -33,17 +32,17 @@ gem 'jbuilder', '~> 2.5'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem 'dry-types'
-gem 'dry-struct'
-gem 'dry-validation'
-gem 'dry-monads'
-gem 'dry-container'
-gem 'formular'
 gem 'disposable'
+gem 'dry-container'
+gem 'dry-monads'
+gem 'dry-struct'
+gem 'dry-types'
+gem 'dry-validation'
+gem 'formular'
 gem 'rom'
 gem 'rom-rails'
-gem 'rom-sql'
 gem 'rom-repository'
+gem 'rom-sql'
 gem 'sequel'
 
 group :development, :test do
@@ -51,11 +50,11 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
   gem 'capybara', '~> 2.13'
-  gem 'selenium-webdriver'
-  gem 'rubocop-git', github: 'blelump/rubocop-git'
-  gem 'rubocop', '0.49.1'
-  gem 'rspec-core'
   gem 'rspec'
+  gem 'rspec-core'
+  gem 'rubocop', '0.49.1'
+  gem 'rubocop-git', github: 'blelump/rubocop-git'
+  gem 'selenium-webdriver'
 end
 
 group :development do

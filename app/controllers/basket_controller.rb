@@ -2,33 +2,28 @@
 
 class BasketController < ApplicationController
   include Infrastructure::ResultHandler
-  ProductsRepo = Infrastructure::Repositories::ProductsRepository
-  BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
+
+  attr_reader :draft_order, :basket_service
+
+  def initialize(draft_order, basket_service)
+    @draft_order = draft_order
+    @basket_service = basket_service
+    super()
+  end
 
   def index
-    basket = BasketsRepo.find_by(user_id: session[:user_id])
-    products = []
-    unless basket&.products.nil?
-      basket.products.each do |id, quantity|
-        products << ProductsRepo.find(id)
-          .instance_variable_get(:@fields)
-          .merge('quantity' => quantity)
-      end
-    end
-
     render html: Infrastructure::TemplateRenderer.render(
       template: 'app/views/basket/index.html.erb',
       view_model: Basket::BasketViewModel.new(
-        products: products,
-        basket: basket,
+        draft_order: draft_order.with_ordered_products(session[:user_id]),
         csrf_token: form_authenticity_token
       )
     ).html_safe
   end
 
-  def create
-    result = Order::Services::AddProductsToOrderService.call(
-      params.merge(user_id: session[:user_id].to_i).permit!
+  def add_products
+    result = basket_service.add_products_to_order.call(
+      params.merge(user_id: session[:user_id])
     )
 
     handle_op_result(result: result) do |handler|
@@ -36,15 +31,18 @@ class BasketController < ApplicationController
         redirect_to basket_index_path
       end
 
-      handler.on_failure = proc do |errors|
+      handler.on_failure = proc do |validation_result|
         render html: Infrastructure::TemplateRenderer.render(
           template: 'app/views/products/index.html.erb',
-          view_model: Products::ProductsListViewModel.new(
-            products: ProductsRepo.all,
-            basket_hash: params[:products],
-            current_user_id: session[:user_id],
+          view_model: Product::ProductsListViewModel.new(
+            draft_order: draft_order.failure(
+              session[:user_id],
+              Customer::Domain::NullBasket.new(
+                validation_result.output[:products]
+              )
+            ),
             csrf_token: form_authenticity_token,
-            errors: errors
+            errors: validation_result.errors
           )
         ).html_safe
       end
@@ -52,28 +50,24 @@ class BasketController < ApplicationController
   end
 
   def update
-    result = Order::Services::ChangeOrderService.call(params.permit!)
+    result = basket_service.change_order.call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
         redirect_to basket_index_path
       end
 
-      handler.on_failure = proc do |errors|
-        basket = BasketsRepo.find_by(user_id: params['id'])
-        products = []
-        basket.products.each do |id, _|
-          products << ProductsRepo.find(id)
-            .instance_variable_get(:@fields)
-            .merge('quantity' => params.to_h['products'][id.to_s].to_i)
-        end
-
+      handler.on_failure = proc do |validation_result|
         render html: Infrastructure::TemplateRenderer.render(
           template: 'app/views/basket/index.html.erb',
           view_model: Basket::BasketViewModel.new(
-            products: products,
-            basket: basket,
-            errors: errors,
+            draft_order: draft_order.failure(
+              session[:user_id],
+              Customer::Domain::NullBasket.new(
+                validation_result.output[:products]
+              )
+            ),
+            errors: validation_result.errors,
             csrf_token: form_authenticity_token
           )
         ).html_safe
@@ -82,23 +76,19 @@ class BasketController < ApplicationController
   end
 
   def checkout
-    result = Order::Services::CheckoutService.call(params.permit!)
+    result = basket_service.checkout.call(params)
 
     handle_op_result(result: result) do |handler|
       handler.on_success = lambda do
         redirect_to products_path
       end
 
-      handler.on_failure = proc do |errors|
-        basket = BasketsRepo.find_by(user_id: session[:user_id])
-        products = YAML.safe_load(params['products'].gsub(/=>/, ': '))
-
+      handler.on_failure = proc do |validation_result|
         render html: Infrastructure::TemplateRenderer.render(
           template: 'app/views/basket/index.html.erb',
           view_model: Basket::BasketViewModel.new(
-            products: products,
-            basket: basket,
-            errors: errors,
+            draft_order: draft_order.with_ordered_products(session[:user_id]),
+            errors: validation_result.errors,
             csrf_token: form_authenticity_token
           )
         ).html_safe

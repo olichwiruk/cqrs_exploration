@@ -3,7 +3,7 @@
 module Order
   module Events
     class DiscountsAppliedEvent < Infrastructure::Event
-      attribute :discounts, Infrastructure::Types::Hash
+      attribute :discounts, T::Hash
     end
   end
 end

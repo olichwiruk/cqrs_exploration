@@ -2,19 +2,23 @@
 
 module Product
   class OrderCheckedOutEventHandler
-    OrdersRepo = Infrastructure::Repositories::OrdersRepository
-    OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
-    ProductsRepo = Infrastructure::Repositories::ProductsRepository
-    EventStore = Infrastructure::WriteRepo
+    attr_reader :event_store, :order_repo, :product_repo
+
+    def initialize(event_store, order_repo, product_repo)
+      @event_store = event_store
+      @order_repo = order_repo
+      @product_repo = product_repo
+    end
 
     def order_checked_out(event)
-      order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
-      lines = OrderLinesRepo.find_order(order.id)
+      order = order_repo.by_uuid(event.aggregate_uuid)
+      lines = order.order_lines
       lines.each do |line|
-        product = ProductsRepo.find(line.product_id)
+        product = product_repo.by_id(line.product_id)
         product.buy(line.quantity)
-        ProductsRepo.update(product)
-        EventStore.commit(product.events)
+        product_repo.update(product)
+        event_store.class.aggregate_type
+        event_store.commit(product.events)
       end
     end
   end

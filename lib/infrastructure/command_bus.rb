@@ -4,20 +4,36 @@ module Infrastructure
   class CommandBus
     @bus = {
       'Order::Commands::CreateOrderCommand' =>
-        'Order::CommandHandlers::CreateOrderCommandHandler',
+      'create_order_command_handler',
       'Order::Commands::ApplyDiscountsCommand' =>
-        'Order::CommandHandlers::ApplyDiscountsCommandHandler',
+      'apply_discounts_command_handler',
       'Order::Commands::AddProductsCommand' =>
-        'Order::CommandHandlers::AddProductsCommandHandler',
+      'add_products_command_handler',
       'Order::Commands::ChangeOrderCommand' =>
-        'Order::CommandHandlers::ChangeOrderCommandHandler',
+      'change_order_command_handler',
       'Order::Commands::CheckoutOrderCommand' =>
-        'Order::CommandHandlers::CheckoutOrderCommandHandler'
+      'checkout_order_command_handler'
     }
 
-    def self.send(command)
-      handler = @bus.fetch(command.class.to_s).constantize
-      handler.execute(command)
+    class << self
+      def send(command)
+        handler = @bus.fetch(command.class.to_s)
+        container_wrapper(handler).execute(command)
+      end
+
+      def finalize
+        @bus.freeze
+      end
+
+      # # @api private
+      # def container_wrapper(handler)
+      #   container["commands.#{handler}"]
+      # end
+
+      # # @api private
+      # def container
+      #   MyApp.instance.container
+      # end
     end
   end
 end

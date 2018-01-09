@@ -3,9 +3,9 @@
 module Product
   module Events
     class ProductUpdatedEvent < Infrastructure::Event
-      attribute :name, Infrastructure::Types::String
-      attribute :quantity, Infrastructure::Types::Int
-      attribute :price, Infrastructure::Types::Int
+      attribute :name, T::String
+      attribute :quantity, T::Int
+      attribute :price, T::Int
     end
   end
 end

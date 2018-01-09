@@ -3,19 +3,11 @@
 module Order
   module Events
     class OrderChangedEvent < Infrastructure::Event
-      attribute :products, Infrastructure::Types::Hash
+      attribute :products, T::Hash
 
       def values
-        formatted_products = products.map do |product|
-          {
-            id: product.id,
-            quantity: product.quantity,
-            price: product.price
-          }
-        end
-
-        super.without(*%w(products))
-          .merge(products: formatted_products)
+        super.except(:products)
+          .merge(products: products.map(&:to_h))
       end
     end
   end

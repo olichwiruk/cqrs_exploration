@@ -12,13 +12,13 @@ module Product
       end
 
       def call(params)
-        validation_result = Validator.call(params[:product].to_h)
-        return M.Left(validation_result.errors) unless validation_result.success?
+        validation_result = Validator.call(params.to_h)
+        return M.Left(validation_result) if validation_result.failure?
 
         product = product_repo.by_id(params[:id])
-        product.update(validation_result.output)
+        product.update(validation_result.output[:product])
 
-        product_repo.update(params[:id], product.to_h)
+        product_repo.update(product)
         event_store.commit(product.events)
 
         M.Right(true)
@@ -30,9 +30,11 @@ module Product
           config.messages = :i18n
         end
 
-        required(:name).filled(:str?)
-        required(:quantity).filled(:int?, gteq?: 0)
-        required(:price).filled(:int?, gt?: 0)
+        required(:product).schema do
+          required(:name).filled(:str?)
+          required(:quantity).filled(:int?, gteq?: 0)
+          required(:price).filled(:int?, gt?: 0)
+        end
       end
     end
   end

@@ -3,43 +3,46 @@
 module Order
   module Services
     class ChangeOrderService
-      class << self
-        M = Dry::Monads
+      M = Dry::Monads
+      attr_reader :order_repo, :product_repo
 
-        def call(params)
-          params_validation = validate(params)
+      def initialize(order_repo, product_repo)
+        @order_repo = order_repo
+        @product_repo = product_repo
+      end
 
-          return params_validation if params_validation.failure?
-          user_id = params[:id]
-          order = Infrastructure::Repositories::OrdersRepository.find_current(user_id)
+      def call(params)
+        validation_result = Validator
+          .with(product_repo: product_repo)
+          .call(params[:basket].to_h)
+        return M.Left(validation_result) if validation_result.failure?
 
-          command = Order::Commands::ChangeOrderCommand.new(
-            order_id: order.id,
-            basket: params.to_h[:products]
-          )
-          Infrastructure::CommandBus.send(command)
+        user_id = params[:id]
+        order = order_repo.find_current(user_id)
+
+        command = Order::Commands::ChangeOrderCommand.new(
+          order_id: order.id,
+          products: validation_result.output[:products]
+        )
+        Infrastructure::CommandBus.send(command)
+      end
+
+      # @api private
+      Validator = Dry::Validation.Form do
+        configure do
+          config.messages = :i18n
+          option :product_repo
         end
 
-        # @api private
-        Validator = Dry::Validation.Form do
-          configure do
-            config.messages = :i18n
+        required(:products).each do
+          schema do
+            required(:id).filled(:int?, gt?: 0)
+            required(:added_quantity).filled(:int?, gteq?: 0)
+            required(:order_line_id).filled(:int?, gt?: 0)
 
-            def positive_values?(hash)
-              hash.values.all? { |v| v.empty? || v.to_i >= 0 }
+            validate(available_quantity?: %i[id added_quantity]) do |id, quantity|
+              product_repo.available_quantity?(id, quantity)
             end
-          end
-
-          required(:products).value(:hash?, :positive_values?)
-        end
-
-        # @api private
-        def validate(params)
-          validator_result = Validator.call(params.to_h)
-          if validator_result.success?
-            M.Right(true)
-          else
-            M.Left(validator_result.errors)
           end
         end
       end

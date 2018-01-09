@@ -3,8 +3,8 @@
 module Customer
   module Events
     class UserUpdatedEvent < Infrastructure::Event
-      attribute :name, Infrastructure::Types::String
-      attribute :email, Infrastructure::Types::Email
+      attribute :name, T::String
+      attribute :email, T::Email
     end
   end
 end

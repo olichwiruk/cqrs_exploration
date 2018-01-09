@@ -4,14 +4,22 @@ module Order
   module Domain
     module Discounts
       class LoyaltyCardDiscount < Discounts::Discount
-        def self.initialize(loyalty_card, model)
-          @loyalty_card = loyalty_card
-          model.value = loyalty_card.discount unless loyalty_card.nil?
-          new(model, applicable?: applicable?)
-        end
+        class << self
+          attr_reader :loyalty_card
 
-        def self.applicable?
-          !@loyalty_card.nil?
+          def initialize(loyalty_card, discount)
+            @loyalty_card = loyalty_card
+            value = loyalty_card ? loyalty_card.discount : 0
+            new(
+              id: discount.id,
+              value: value,
+              applicable: applicable?
+            )
+          end
+
+          def applicable?
+            !loyalty_card.nil?
+          end
         end
       end
     end

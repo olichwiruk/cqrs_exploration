@@ -2,19 +2,20 @@
 
 module Customer
   module Domain
-    class User < ROM::Struct
-      include Infrastructure::Entity
-      constructor_type :schema
+    class User < ::Domain::SchemaStruct
+      include ::Domain::Entity
 
-      attribute :id, Infrastructure::Types::Coercible::Int
-      attribute :uuid, Infrastructure::Types::String
-      attribute :name, Infrastructure::Types::String
-      attribute :email, Infrastructure::Types::Email
+      attribute :id, T::Coercible::Int
+      attribute :uuid, T::String
+      attribute :name, T::String
+      attribute :email, T::Email
+      attribute :loyalty_card, T.Instance(LoyaltyCard)
 
       def self.initialize(name:, email:)
         user = new
         user.apply_event(
           Customer::Events::UserCreatedEvent.new(
+            aggregate_uuid: SecureRandom.uuid,
             name: name,
             email: email
           )
@@ -33,6 +34,16 @@ module Customer
         self
       end
 
+      def give_loyalty_card
+        unless loyalty_card?
+          @loyalty_card = Domain::LoyaltyCard.new(
+            user_id: id,
+            discount: 1
+          )
+        end
+        self
+      end
+
       def on_user_created(event)
         @uuid = event.aggregate_uuid
         @name = event.name
@@ -42,6 +53,11 @@ module Customer
       def on_user_updated(event)
         @name = event.name
         @email = event.email
+      end
+
+      # @api private
+      def loyalty_card?
+        !loyalty_card.nil?
       end
     end
   end

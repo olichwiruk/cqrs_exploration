@@ -4,6 +4,7 @@ module Infrastructure
   class TemplateRenderer
     include Rails.application.routes.url_helpers
     include Formular::Helper
+    include ActionView::Helpers::UrlHelper
 
     attr_reader :template, :view_model
 

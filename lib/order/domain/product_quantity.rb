@@ -3,11 +3,11 @@
 module Order
   module Domain
     class ProductQuantity < Dry::Struct
-      include Infrastructure::Types
+      T = Infrastructure::Types
 
-      attribute :id, Infrastructure::Types::Int
-      attribute :price, Infrastructure::Types::Int
-      attribute :quantity, Infrastructure::Types::Int
+      attribute :id, T::Int
+      attribute :price, T::Int
+      attribute :quantity, T::Int
     end
   end
 end

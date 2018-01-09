@@ -1,4 +1,7 @@
 en:
   errors:
-    email?: email invalid
     positive_values?: values must be positive
+    email?: email invalid
+    available_email?: email is taken
+    available_email_for_user?: email is taken
+    available_quantity?: out of stock

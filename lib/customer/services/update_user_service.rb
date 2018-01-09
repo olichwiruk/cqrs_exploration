@@ -12,16 +12,16 @@ module Customer
       end
 
       def call(params)
-        email_validation = validate_email(params[:id], params[:user][:email])
-        params_validation_result = Validator.call(params[:user].to_h)
-        fail_message = params_validation_result.failure? ? M.Left(params_validation_result.errors) : email_validation
+        validation_result = Validator
+          .with(user_repo: user_repo)
+          .call(params.to_h)
 
-        return fail_message if email_validation.failure? || params_validation_result.failure?
+        return M.Left(validation_result) if validation_result.failure?
 
-        user = user_repo.by_id(params[:id])
-        user.update(params_validation_result.output)
+        user = user_repo.by_id(validation_result.output[:id])
+        user.update(validation_result.output[:user])
 
-        user_repo.update(params[:id], user.to_h)
+        user_repo.save(user)
         event_store.commit(user.events)
 
         M.Right(true)
@@ -31,19 +31,18 @@ module Customer
       Validator = Dry::Validation.Form do
         configure do
           config.messages = :i18n
+          option :user_repo
           predicates(Infrastructure::ValidationPredicates)
         end
 
-        required(:name).filled(:str?)
-        required(:email).filled(:str?, :email?)
-      end
+        required(:id).filled(:int?)
+        required(:user).schema do
+          required(:name).filled(:str?)
+          required(:email).filled(:str?, :email?)
+        end
 
-      # @api private
-      def validate_email(user_id, email)
-        if user_repo.available_email_for_user?(user_id, email)
-          M.Right(true)
-        else
-          M.Left(email: ['email is taken'])
+        validate(available_email_for_user?: %i[id user]) do |id, user|
+          user_repo.available_email_for_user?(id, user[:email])
         end
       end
     end

@@ -13,13 +13,13 @@ module Product
 
       def call(params)
         validation_result = Validator.call(params.to_h)
-        return M.Left(validation_result.errors) unless validation_result.success?
+        return M.Left(validation_result) if validation_result.failure?
 
         product = Product::Domain::Product.initialize(
           validation_result.output
         )
 
-        product_repo.create(product.to_h)
+        product_repo.create(product)
         event_store.commit(product.events)
 
         M.Right(true)

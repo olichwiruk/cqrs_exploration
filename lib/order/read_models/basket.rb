@@ -3,13 +3,13 @@
 module Order
   module ReadModels
     class Basket < Dry::Struct
-      include Infrastructure::Types
       constructor_type :schema
+      T = Infrastructure::Types
 
-      attribute :user_id, Infrastructure::Types::Int
-      attribute :products, Infrastructure::Types::Hash
-      attribute :discount, Infrastructure::Types::Int
-      attribute :total_price, Infrastructure::Types::Int
+      attribute :user_id, T::Int
+      attribute :products, T::Hash
+      attribute :discount, T::Int
+      attribute :total_price, T::Int
     end
   end
 end

@@ -3,7 +3,7 @@
 module Order
   module Events
     class OrderCreatedEvent < Infrastructure::Event
-      attribute :user_id, Infrastructure::Types::String
+      attribute :user_id, T::String
     end
   end
 end

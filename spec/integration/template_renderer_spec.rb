@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
 require 'integration/integration_helper'
-require 'infrastructure/template_renderer'
 
-describe TemplateRenderer do
+describe 'TemplateRenderer' do
   subject do
-    TemplateRenderer
+    Infrastructure::TemplateRenderer
   end
 
   describe '.render' do
@@ -46,7 +45,7 @@ describe TemplateRenderer do
                     view_model: OpenStruct.new)
       end
 
-      it 'raise exception' do
+      it 'raises exception' do
         expect do
           renderer.upload_template
         end.to raise_error(RuntimeError, "File can't be read")
