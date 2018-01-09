@@ -67,7 +67,7 @@ MyApp.configure do |container|
   end
 
   container.register('services.update_product_service') do
-     Product::Services::UpdateProductService.new(
+    Product::Services::UpdateProductService.new(
       container['repositories.event_repo.product'],
       container['repositories.products']
     )
@@ -235,6 +235,35 @@ MyApp.configure do |container|
     )
   end
 
-  CommandBus.register_command_handler(name, handler)
-  CommandBus.finalize
+  Infrastructure::CommandBus.register_command_handler(
+    'Order::Commands::CreateOrderCommand'
+  ) do
+    container['commands.create_order_command_handler']
+  end
+
+  Infrastructure::CommandBus.register_command_handler(
+    'Order::Commands::ApplyDiscountsCommand'
+  ) do
+    container['commands.apply_discounts_command_handler']
+  end
+
+  Infrastructure::CommandBus.register_command_handler(
+    'Order::Commands::AddProductsCommand'
+  ) do
+    container['commands.add_products_command_handler']
+  end
+
+  Infrastructure::CommandBus.register_command_handler(
+    'Order::Commands::ChangeOrderCommand'
+  ) do
+    container['commands.change_order_command_handler']
+  end
+
+  Infrastructure::CommandBus.register_command_handler(
+    'Order::Commands::CheckoutOrderCommand'
+  ) do
+    container['commands.checkout_order_command_handler']
+  end
+
+  Infrastructure::CommandBus.finalize
 end
