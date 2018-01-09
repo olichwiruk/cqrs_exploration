@@ -37,7 +37,7 @@ class BasketController < ApplicationController
           view_model: Product::ProductsListViewModel.new(
             draft_order: draft_order.failure(
               session[:user_id],
-              Customer::Domain::NullBasket.new(
+              Customer::ReadModels::NullBasket.new(
                 validation_result.output[:products]
               )
             ),
@@ -63,7 +63,7 @@ class BasketController < ApplicationController
           view_model: Basket::BasketViewModel.new(
             draft_order: draft_order.failure(
               session[:user_id],
-              Customer::Domain::NullBasket.new(
+              Customer::ReadModels::NullBasket.new(
                 validation_result.output[:products]
               )
             ),

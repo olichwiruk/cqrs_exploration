@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Customer
-  module Domain
+  module ReadModels
     class OrderedProductLine < ::Domain::SchemaStruct
       attribute :order_line_id, T::Int
       attribute :basket_id, T::Coercible::Int

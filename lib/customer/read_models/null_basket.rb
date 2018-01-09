@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Customer
-  module Domain
+  module ReadModels
     class NullBasket
       attr_reader :ordered_product_lines
       attr_reader :total_price, :final_price, :discount

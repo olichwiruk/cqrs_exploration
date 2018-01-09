@@ -22,7 +22,7 @@ module Order
         products = product_repo.all_products.map do |p|
           ol = basket.ordered_product_lines.find do |ol_product|
             ol_product.product_id == p.id
-          end || Customer::Domain::NullOrderedProductLine.new(p.id)
+          end || Customer::ReadModels::NullOrderedProductLine.new(p.id)
 
           build_offered_product(p, ol, basket.discount)
         end

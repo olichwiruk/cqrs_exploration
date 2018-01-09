@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module Customer
-  module Domain
+  module ReadModels
     class Basket < ::Domain::SchemaStruct
       attribute :id, T::Int
       attribute :user_id, T::Coercible::Int
-      attribute :ordered_product_lines, T.Array(Domain::OrderedProductLine)
+      attribute :ordered_product_lines, T.Array(ReadModels::OrderedProductLine)
       attribute :discount, T::Coercible::Int
       attribute :total_price, T::Coercible::Float
       attribute :final_price, T::Coercible::Float
