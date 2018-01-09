@@ -12,17 +12,17 @@ module Customer
       end
 
       def call(params)
-        email_validation = validate_email(params[:email])
-        params_validation_result = Validator.call(params.to_h)
-        fail_message = params_validation_result.failure? ? M.Left(params_validation_result.errors) : email_validation
+        validation_result = Validator
+          .with(user_repo: user_repo)
+          .call(params.to_h)
 
-        return fail_message if email_validation.failure? || params_validation_result.failure?
+        return M.Left(validation_result) if validation_result.failure?
 
         user = Customer::Domain::User.initialize(
-          params_validation_result.output
+          validation_result.output
         )
 
-        saved_user = user_repo.create(user.to_h)
+        saved_user = user_repo.create(user)
         event_store.commit(user.events)
 
         send_email(saved_user)
@@ -38,20 +38,16 @@ module Customer
       Validator = Dry::Validation.Form do
         configure do
           config.messages = :i18n
+          option :user_repo
           predicates(Infrastructure::ValidationPredicates)
+
+          def available_email?(email)
+            user_repo.available_email?(email)
+          end
         end
 
         required(:name).filled(:str?)
-        required(:email).filled(:str?, :email?)
-      end
-
-      # @api private
-      def validate_email(email)
-        if user_repo.available_email?(email)
-          M.Right(true)
-        else
-          M.Left(email: ['email is taken'])
-        end
+        required(:email).filled(:str?, :email?, :available_email?)
       end
     end
   end

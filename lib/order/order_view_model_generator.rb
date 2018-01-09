@@ -2,57 +2,67 @@
 
 module Order
   class OrderViewModelGenerator
-    BasketsRepo = Infrastructure::RepositoriesRead::BasketsRepository
-    OrdersRepo = Infrastructure::Repositories::OrdersRepository
-    OrderLinesRepo = Infrastructure::Repositories::OrderLinesRepository
+    attr_reader :basket_repo, :order_repo, :product_repo
+
+    def initialize(basket_repo, order_repo, product_repo)
+      @basket_repo = basket_repo
+      @order_repo = order_repo
+      @product_repo = product_repo
+    end
 
     def products_added(event)
-      order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
-      basket = generate_basket(order)
-      BasketsRepo.update(basket)
+      order = order_repo.by_uuid(event.aggregate_uuid)
+      basket = generate_refreshed_basket(order)
+      basket_repo.save(basket)
     end
 
     def order_changed(event)
-      order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
-      basket = generate_basket(order)
-      BasketsRepo.update(basket)
+      order = order_repo.by_uuid(event.aggregate_uuid)
+      basket = generate_refreshed_basket(order)
+      basket_repo.save(basket)
     end
 
     def order_checked_out(event)
-      order = OrdersRepo.find_by(uuid: event.aggregate_uuid)
-      basket = BasketsRepo.find_by(user_id: order.user_id)
-      BasketsRepo.update(restart_basket(basket))
+      order = order_repo.by_uuid(event.aggregate_uuid)
+
+      basket = basket_repo.by_user_id(order.user_id)
+      basket.restart
+      basket_repo.save(basket)
     end
 
     # @api private
-    def generate_basket(order)
-      basket = BasketsRepo.find_or_create_by(user_id: order.user_id)
-      order_lines = AR::OrderLine.where(order_id: order.id)
+    def generate_refreshed_basket(order)
+      basket = basket_repo.find_or_create(order.user_id)
 
-      products_quantity = convert_lines(order_lines)
-      basket.build(products_quantity)
+      ordered_product_lines = map_to_ordered_product_lines(basket.id, order.order_lines)
+      products_quantity = map_to_products_quantity(order.order_lines)
+
+      summary = basket_calculator
+        .calculate(user_id, products_quantity)
+      basket.update(ordered_product_lines, summary)
     end
 
     # @api private
-    def restart_basket(basket)
-      basket.products = nil
-      basket.discount = 0
-      basket.total_price = 0
-      basket.final_price = 0
-      basket
+    def map_to_ordered_product_lines(basket_id, order_lines)
+      order_lines.map do |ol|
+        Customer::Domain::OrderedProductLine.new(
+          order_line_id: ol.id,
+          basket_id: basket_id,
+          product_id: ol.product_id,
+          added_quantity: ol.quantity
+        )
+      end
     end
 
     # @api private
-    def convert_lines(order_lines)
-      products_quantity = []
-      order_lines.each do |line|
-        products_quantity << Order::Domain::ProductQuantity.new(
+    def map_to_products_quantity(order_lines)
+      order_lines.map do |line|
+        Order::Domain::ProductQuantity.new(
           id: line.product_id,
-          price: AR::Product.find(line.product_id).price,
+          price: product_repo.by_id(line.product_id).price,
           quantity: line.quantity
         )
       end
-      products_quantity
     end
   end
 end

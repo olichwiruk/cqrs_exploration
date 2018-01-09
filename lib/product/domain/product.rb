@@ -2,20 +2,20 @@
 
 module Product
   module Domain
-    class Product < ROM::Struct
-      include Infrastructure::Entity
-      constructor_type :schema
+    class Product < ::Domain::SchemaStruct
+      include ::Domain::Entity
 
-      attribute :id, Infrastructure::Types::Coercible::Int
-      attribute :uuid, Infrastructure::Types::String
-      attribute :name, Infrastructure::Types::String
-      attribute :quantity, Infrastructure::Types::Coercible::Int
-      attribute :price, Infrastructure::Types::Coercible::Int
+      attribute :id, T::Coercible::Int
+      attribute :uuid, T::String
+      attribute :name, T::String
+      attribute :quantity, T::Coercible::Int
+      attribute :price, T::Coercible::Int
 
       def self.initialize(name:, quantity:, price:)
         product = new
         product.apply_event(
           ::Product::Events::ProductCreatedEvent.new(
+            aggregate_uuid: SecureRandom.uuid,
             name: name,
             quantity: quantity,
             price: price
@@ -36,11 +36,11 @@ module Product
         self
       end
 
-      def buy(quantity)
+      def buy(bought_quantity)
         apply_event(
           ::Product::Events::ProductBoughtEvent.new(
             aggregate_uuid: uuid,
-            quantity: quantity
+            quantity: bought_quantity
           )
         )
         self

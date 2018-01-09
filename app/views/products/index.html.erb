@@ -1,34 +1,38 @@
-<% if view_model.current_user_id.nil? %>
-  <a href='<%= login_path %>'>Login</a>
-<% else %>
-  <%= "Hi, #{view_model.current_user_id}!" %>
-  <a href='<%= basket_index_path %>'>Basket</a>
+<% if view_model.logged? %>
+  <%= "Hi, #{view_model.draft_order.user_id}!" %>
+  <%= link_to 'Basket', basket_index_path %>
   <br>
-  <a href='<%= logout_path %>'>Logout</a>
+  <%= link_to 'Logout', logout_path %>
+<% else %>
+  <%= link_to 'Login', login_path %>
 <% end %>
 <br><br>
-<a href='<%= users_path %>'>Users</a>
+<%= link_to 'Users', users_path %>
 <h1>Products:</h1>
-<a href='<%= new_product_path %>'>New</a>
+<%= link_to 'New', new_product_path %>
 <br>
 <% f = form(
-    view_model.basket_hash,
-    basket_index_path,
-    csrf_token: view_model.csrf_token,
-    csrf_token_name: 'authenticity_token',
-    errors: [],
-    path_prefix: 'products'
-  ) %>
+  view_model.draft_order,
+  add_products_path,
+  csrf_token: view_model.csrf_token,
+  csrf_token_name: 'authenticity_token',
+  errors: [],
+  path_prefix: 'basket'
+) %>
   <%= f.start %>
   <%= view_model.errors unless view_model.errors.empty? %><br>
-  <% view_model.products.each do |product| %>
-    <a href='<%= edit_product_path(product[:id]) %>'>Edit</a> -
-    <%= product[:name] %> |
-    <%= product[:quantity] %> pcs. |
-    <%= product[:price] %> USD
-    <%= f.input product[:id].to_s.to_sym, type: 'number', value: view_model.basket_hash[product[:id].to_s] unless view_model.current_user_id.nil? %>
+  <% f.collection :products do |g| %>
+    <%= link_to 'Edit', edit_product_path(g.model.id) %>
+    <%= g.model.name %> |
+    <%= g.model.quantity %> pcs.
+    <%= g.model.price %> USD
+    <% if view_model.logged? %>
+      <%= g.input :id, type: 'hidden' %>
+      <%= g.input :order_line_id, type: 'hidden' %>
+      <%= g.input :added_quantity, type: 'number' %>
+    <% end %>
     <br>
   <% end %>
   <br><br>
-  <%= f.submit unless view_model.current_user_id.nil? %>
-<%= f.end %>
+  <%= f.submit if view_model.logged? && view_model.products_added? %>
+  <%= f.end %>

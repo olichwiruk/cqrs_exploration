@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
-require 'infrastructure/types'
-
 module Infrastructure
   class Event < Dry::Struct
-    include Infrastructure::Types
-    constructor_type :schema
+    T = Infrastructure::Types
 
-    attribute :aggregate_type, Types::String
-    attribute :aggregate_uuid, Types::String.default(SecureRandom.uuid)
+    attribute :aggregate_uuid, T::String
 
     def values
-      instance_values.without(*%w(aggregate_uuid aggregate_type))
+      to_hash.except(:aggregate_uuid)
     end
   end
 end

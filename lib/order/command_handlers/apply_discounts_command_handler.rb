@@ -4,29 +4,28 @@ module Order
   module CommandHandlers
     class ApplyDiscountsCommandHandler
       M = Dry::Monads
-      OrdersRepo = Infrastructure::Repositories::OrdersRepository
-      OrderDiscountsRepo = Infrastructure::Repositories::OrderDiscountsRepository
-      EventStore = Infrastructure::WriteRepo
+      attr_reader :event_store, :order_repo, :discount_service
 
-      class << self
-        def execute(command)
-          validation_result = command.validate
+      def initialize(event_store, order_repo, discount_service)
+        @event_store = event_store
+        @order_repo = order_repo
+        @discount_service = discount_service
+      end
 
-          return M.Left(validation_result.errors) unless validation_result.success?
+      def execute(command)
+        validation_result = command.validate
 
-          order_uuid = validation_result.output[:aggregate_uuid]
-          order = OrdersRepo.find_by(uuid: order_uuid)
+        return M.Left(validation_result) if validation_result.failure?
 
-          discounts = ::Order::Services::Domain::DiscountService.new(
-            order.user_id
-          ).applicable_discounts
+        order_uuid = validation_result.output[:aggregate_uuid]
+        order = order_repo.by_uuid(order_uuid)
+        discounts = discount_service.applicable_discounts(order.user_id)
 
-          order.apply_discounts(discounts)
-          OrderDiscountsRepo.apply(order: order, discounts: discounts)
-          EventStore.commit(order.events)
+        order.apply_discounts(discounts)
+        order_repo.save(order)
+        event_store.commit(order.events)
 
-          M.Right(true)
-        end
+        M.Right(true)
       end
     end
   end

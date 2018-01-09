@@ -3,12 +3,12 @@
 module Customer
   module ReadModels
     class User < Dry::Struct
-      include Infrastructure::Types
       constructor_type :schema
+      T = Infrastructure::Types
 
-      attribute :id, Infrastructure::Types::Int
-      attribute :name, Infrastructure::Types::String
-      attribute :email, Infrastructure::Types::String
+      attribute :id, T::Int
+      attribute :name, T::String
+      attribute :email, T::String
     end
   end
 end

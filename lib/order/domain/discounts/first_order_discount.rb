@@ -4,13 +4,21 @@ module Order
   module Domain
     module Discounts
       class FirstOrderDiscount < Discounts::Discount
-        def self.initialize(first_order, model)
-          @first_order = first_order
-          new(model, applicable?: applicable?)
-        end
+        class << self
+          attr_reader :first_order
 
-        def self.applicable?
-          @first_order
+          def initialize(first_order, discount)
+            @first_order = first_order
+            new(
+              id: discount.id,
+              value: discount.value,
+              applicable: applicable?
+            )
+          end
+
+          def applicable?
+            first_order
+          end
         end
       end
     end

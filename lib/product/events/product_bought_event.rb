@@ -3,7 +3,7 @@
 module Product
   module Events
     class ProductBoughtEvent < Infrastructure::Event
-      attribute :quantity, Infrastructure::Types::Int
+      attribute :quantity, T::Int
     end
   end
 end

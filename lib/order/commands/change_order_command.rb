@@ -7,7 +7,7 @@ module Order
 
       Validator = Dry::Validation.Schema do
         required(:order_id).filled
-        required(:basket).filled(:hash?)
+        required(:products).filled(:array?)
       end
 
       def initialize(params)

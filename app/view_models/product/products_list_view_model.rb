@@ -2,14 +2,20 @@
 
 module Product
   class ProductsListViewModel
-    attr_reader :products, :basket_hash, :current_user_id, :csrf_token, :errors
+    attr_reader :csrf_token, :errors, :draft_order
 
-    def initialize(products:, basket_hash: {}, current_user_id:, csrf_token:, errors: {})
-      @products = products
-      @basket_hash = basket_hash
-      @current_user_id = current_user_id
+    def initialize(draft_order:, csrf_token:, errors: {})
       @csrf_token = csrf_token
       @errors = errors
+      @draft_order = draft_order
+    end
+
+    def logged?
+      draft_order.user_id
+    end
+
+    def products_added?
+      !draft_order.products.empty?
     end
   end
 end

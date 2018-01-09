@@ -3,29 +3,39 @@
 module Order
   module ProcessManagers
     class OrderProcessManagerRouter
-      OrderProcessesRepo = Infrastructure::Repositories::OrderProcessesRepository
+      attr_reader :order_pm_repo
+
+      def initialize(order_pm_repo)
+        @order_pm_repo = order_pm_repo
+      end
 
       def order_created(event)
-        pm = OrderProcessesRepo.build(order_uuid: event.aggregate_uuid)
-        pm.order_created(event)
+        pm = order_pm_repo.create(order_uuid: event.aggregate_uuid)
+        pm.order_created
         save(pm)
       end
 
       def products_added(event)
-        pm = OrderProcessesRepo.load(event.aggregate_uuid)
-        pm.products_added(event)
+        pm = order_pm_repo.by_order_uuid(event.aggregate_uuid)
+        pm.products_added
+        save(pm)
+      end
+
+      def order_changed(event)
+        pm = order_pm_repo.by_order_uuid(event.aggregate_uuid)
+        pm.order_changed(event)
         save(pm)
       end
 
       def order_checked_out(event)
-        pm = OrderProcessesRepo.load(event.aggregate_uuid)
-        pm.order_checked_out(event)
+        pm = order_pm_repo.by_order_uuid(event.aggregate_uuid)
+        pm.order_checked_out
         save(pm)
       end
 
       # @api private
       def save(pm)
-        OrderProcessesRepo.save(pm)
+        order_pm_repo.save(pm)
         while (command = pm.commands.shift)
           Infrastructure::CommandBus.send(command)
         end

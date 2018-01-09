@@ -1,48 +1,52 @@
 <h1>Basket</h1>
-<% if view_model.products.empty? %>
+<% if view_model.basket_empty? %>
   basket is empty
 <% end %>
 <% f = form(
-    view_model.products,
-    basket_path(view_model.basket.user_id),
+    view_model.draft_order,
+    basket_path(view_model.draft_order.user_id),
     method: 'put',
     csrf_token: view_model.csrf_token,
     csrf_token_name: 'authenticity_token',
     errors: [],
-    path_prefix: 'products'
+    path_prefix: 'basket'
   ) %>
   <%= f.start %>
-  <%= view_model.errors unless view_model.errors.empty? %><br>
-  <% view_model.products.each do |product| %>
-    <a href='<%= product_path(product['id']) %>'>
-      <%= product['name'] %>
+  <%= view_model.errors if view_model.errors? %><br>
+
+  <% f.collection :products do |g| %>
+    <a href='<%= product_path(g.model.id) %>'>
+      <%= g.model.name %>
     </a>
-    <%= f.input product['id'].to_s.to_sym, type: 'number', value: product['quantity'] %> pcs. =
+    <%= g.input :id, type: 'hidden' %>
+    <%= g.input :order_line_id, type: 'hidden' %>
+    <%= g.input :added_quantity, type: 'number' %> pcs. =
     <del>
-      <%= product['quantity'] * product['price'] %> USD
+      <%= g.model.total_price %> USD
     </del>
-    <%= product['quantity'] * product['price'] * (1 - view_model.basket.discount / 100.0) %> USD
+    <%= g.model.final_price %> USD
     <br>
   <% end %>
   <br>
-  <%= f.submit value: 'Change' unless view_model.products.empty? %>
+  <%= f.submit value: 'Change' unless view_model.basket_empty? %>
 <%= f.end %>
 <br>
-discount: <%= view_model.basket.discount %>%<br>
-total: <del><%= view_model.basket.total_price %> USD</del> <%= view_model.basket.final_price %> USD
+discount: <%= view_model.draft_order.discount %>%<br>
+total: <del><%= view_model.draft_order.total_price %> USD</del> 
+<%= view_model.draft_order.final_price %> USD
 
-<% unless view_model.products.empty? %>
+<% unless view_model.basket_empty? %>
   <% f = form(
-      nil,
+      view_model.draft_order,
       checkout_path,
       csrf_token: view_model.csrf_token,
       csrf_token_name: 'authenticity_token',
       errors: []
   ) %>
     <%= f.start %>
-    <%= f.hidden value: view_model.basket.user_id,
+    <%= f.hidden value: view_model.draft_order.user_id,
                 name: 'user_id' %>
-    <%= f.hidden value: view_model.products,
+    <%= f.hidden value: view_model.draft_order.products,
                 name: 'products' %>
     <%= f.select(
       name: :payment_method,

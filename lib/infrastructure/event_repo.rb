@@ -5,16 +5,20 @@ module Infrastructure
     commands :create
 
     class << self
-      attr_reader :aggregate_type
-
       def [](agg_type)
-        # klass = super(:events)
-        # klass.define_singleton_method(:aggregate_type) do
-        #   agg_type.to_s
-        # end
-        # klass
-        @aggregate_type = agg_type.to_s
-        self
+        agg_type_cls_name = agg_type.to_s.camelize
+        if const_defined?(agg_type_cls_name, false)
+          return const_get(agg_type_cls_name)
+        end
+
+        cls = Class.new(self) do
+          define_singleton_method(:aggregate_type) do
+            agg_type.to_s
+          end
+        end
+        const_set(agg_type_cls_name, cls)
+
+        cls
       end
     end
 

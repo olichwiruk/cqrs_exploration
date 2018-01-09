@@ -4,26 +4,29 @@ module Order
   module Services
     module Domain
       class PricingService
-        def self.calculate_total(products_quantity:, discount: 0)
-          price = 0
-          products_quantity.each do |product|
-            price += product.quantity * product.price
-          end
+        attr_reader :order_repo, :product_repo
 
-          price * (1 - discount / 100.0)
+        def initialize(order_repo, product_repo)
+          @order_repo = order_repo
+          @product_repo = product_repo
         end
 
-        def self.calculate_order_total(order_id)
-          order_lines = AR::OrderLine.where(order_id: order_id)
-          products_quantity = []
-          order_lines.each do |line|
-            products_quantity << Order::Domain::ProductQuantity.new(
+        def calculate_total(products_quantity)
+          products_quantity.inject(0) do |sum, product|
+            sum + product.quantity * product.price
+          end
+        end
+
+        def calculate_current_order(user_id)
+          order_lines = order_repo.find_last(user_id).order_lines
+          products_quantity = order_lines.map do |line|
+            Order::Domain::ProductQuantity.new(
               id: line.product_id,
-              price: AR::Product.find(line.product_id).price,
+              price: product_repo.by_id(line.product_id).price,
               quantity: line.quantity
             )
           end
-          calculate_total(products_quantity: products_quantity)
+          calculate_total(products_quantity)
         end
       end
     end

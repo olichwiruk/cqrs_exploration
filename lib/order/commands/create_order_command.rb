@@ -14,11 +14,10 @@ module Order
 
       def initialize(params)
         @params = params
-        @uuid = SecureRandom.uuid
       end
 
       def validate
-        Validator.call(params)
+        Validator.call(params.to_h)
       end
     end
   end

@@ -4,13 +4,21 @@ module Order
   module Domain
     module Discounts
       class TotalPriceDiscount < Discounts::Discount
-        def self.initialize(total_price, model)
-          @total_price = total_price
-          new(model, applicable?: applicable?)
-        end
+        class << self
+          attr_reader :total_price
 
-        def self.applicable?
-          @total_price > 50
+          def initialize(total_price, discount)
+            @total_price = total_price
+            new(
+              id: discount.id,
+              value: discount.value,
+              applicable: applicable?
+            )
+          end
+
+          def applicable?
+            total_price > 50
+          end
         end
       end
     end
