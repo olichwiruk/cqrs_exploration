@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'customer/domain/basket'
+require 'customer/read_models/basket'
 
 module Customer
   module Repositories
     class BasketRepo < ROM::Repository[:baskets]
       commands :create
-      struct_namespace Customer::Domain
+      struct_namespace Customer::ReadModels
 
       def by_user_id(user_id)
-        b = baskets.where(user_id: user_id).one || Customer::Domain::NullBasket.new
+        b = baskets.where(user_id: user_id).one || Customer::ReadModels::NullBasket.new
 
         return b if b.nil?
         baskets.combine(:ordered_product_lines).by_pk(b.id).one!

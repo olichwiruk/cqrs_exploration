@@ -45,7 +45,7 @@ module Order
     # @api private
     def map_to_ordered_product_lines(basket_id, order_lines)
       order_lines.map do |ol|
-        Customer::Domain::OrderedProductLine.new(
+        Customer::ReadModels::OrderedProductLine.new(
           order_line_id: ol.id,
           basket_id: basket_id,
           product_id: ol.product_id,

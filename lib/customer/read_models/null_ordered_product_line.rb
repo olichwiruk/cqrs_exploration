@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Customer
-  module Domain
+  module ReadModels
     class NullOrderedProductLine
       attr_reader :order_line_id, :basket_id, :product_id, :added_quantity
 
