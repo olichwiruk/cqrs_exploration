@@ -6,7 +6,7 @@ MyApp.configure do |container|
   container.register('controllers.users_controller') do
     UsersController.new(
       container['repositories.users'],
-      container['services.users_service'],
+      container['services.users_service']
     )
   end
 
@@ -21,7 +21,7 @@ MyApp.configure do |container|
     ProductsController.new(
       container['repositories.products'],
       container['generators.draft_order_generator'],
-      container['services.products_service'],
+      container['services.products_service']
     )
   end
 
@@ -35,7 +35,7 @@ MyApp.configure do |container|
   container.register('controllers.basket_controller') do
     BasketController.new(
       container['generators.draft_order_generator'],
-      container['services.basket_service'],
+      container['services.basket_service']
     )
   end
 
@@ -266,4 +266,42 @@ MyApp.configure do |container|
   end
 
   Infrastructure::CommandBus.finalize
+
+  Infrastructure::EventBus.register_event_handler(
+    'order_created'
+  ) do
+    [
+      container['events.order_process_manager_router']
+    ]
+  end
+
+  Infrastructure::EventBus.register_event_handler(
+    'products_added'
+  ) do
+    [
+      container['events.order_process_manager_router'],
+      container['events.order_view_model_generator']
+    ]
+  end
+
+  Infrastructure::EventBus.register_event_handler(
+    'order_changed'
+  ) do
+    [
+      container['events.order_process_manager_router'],
+      container['events.order_view_model_generator']
+    ]
+  end
+
+  Infrastructure::EventBus.register_event_handler(
+    'order_checked_out'
+  ) do
+    [
+      container['events.order_process_manager_router'],
+      container['events.order_view_model_generator'],
+      container['events.order_checked_out_event_handler']
+    ]
+  end
+
+  Infrastructure::EventBus.finalize
 end

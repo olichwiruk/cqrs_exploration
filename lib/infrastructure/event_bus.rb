@@ -2,45 +2,20 @@
 
 module Infrastructure
   class EventBus
-    @bus = {
-      'order_created' =>
-      %w[order_process_manager_router],
-
-      'products_added' =>
-      %w[
-        order_process_manager_router
-        order_view_model_generator
-      ],
-
-      'order_changed' =>
-      %w[
-        order_process_manager_router
-        order_view_model_generator
-      ],
-
-      'order_checked_out' =>
-      %w[
-        order_process_manager_router
-        order_view_model_generator
-        order_checked_out_event_handler
-      ]
-    }
+    @bus = { }
 
     class << self
       def handlers(event_name)
         return unless @bus.include?(event_name)
-
-        @bus[event_name].map { |e| container_wrapper(e) }
+        @bus.fetch(event_name).call
       end
 
-      # @api private
-      def container_wrapper(handler)
-        container["events.#{handler}"]
+      def register_event_handler(name, &block)
+        @bus[name] = block
       end
 
-      # @api private
-      def container
-        MyApp.instance.container
+      def finalize
+        @bus.freeze
       end
     end
   end

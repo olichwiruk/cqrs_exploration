@@ -26,7 +26,7 @@ module Order
         order.add_products(order_lines)
 
         order_repo.save(order)
-        # event_store.commit(order.events)
+        event_store.commit(order.events)
         M.Right(true)
       end
 
