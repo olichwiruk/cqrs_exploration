@@ -19,11 +19,11 @@ module Order
       end
 
       def by_id(id)
-        orders.combine(:order_lines).where(id: id).one!
+        orders.combine(:order_lines, :order_discounts).where(id: id).one!
       end
 
       def by_uuid(uuid)
-        orders.combine(:order_lines).where(uuid: uuid).one!
+        orders.combine(:order_lines, :order_discounts).where(uuid: uuid).one!
       end
 
       def find_current(user_id)
