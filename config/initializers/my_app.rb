@@ -221,11 +221,19 @@ MyApp.configure do |container|
     )
   end
 
+  container.register('services.basket_calculator') do
+    Customer::ReadModels::Services::BasketCalculator.new(
+      container['services.pricing_service'],
+      container['services.discount_service']
+    )
+  end
+
   container.register('events.order_view_model_generator') do
     Order::OrderViewModelGenerator.new(
       container['repositories.baskets'],
       container['repositories.orders'],
-      container['repositories.products']
+      container['repositories.products'],
+      container['services.basket_calculator']
     )
   end
 

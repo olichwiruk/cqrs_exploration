@@ -3,11 +3,13 @@
 module Order
   class OrderViewModelGenerator
     attr_reader :basket_repo, :order_repo, :product_repo
+    attr_reader :basket_calculator
 
-    def initialize(basket_repo, order_repo, product_repo)
+    def initialize(basket_repo, order_repo, product_repo, basket_calculator)
       @basket_repo = basket_repo
       @order_repo = order_repo
       @product_repo = product_repo
+      @basket_calculator = basket_calculator
     end
 
     def products_added(event)
@@ -26,8 +28,7 @@ module Order
       order = order_repo.by_uuid(event.aggregate_uuid)
 
       basket = basket_repo.by_user_id(order.user_id)
-      basket.restart
-      basket_repo.save(basket)
+      basket_repo.save(basket.restart)
     end
 
     # @api private
@@ -38,7 +39,7 @@ module Order
       products_quantity = map_to_products_quantity(order.order_lines)
 
       summary = basket_calculator
-        .calculate(user_id, products_quantity)
+        .calculate(basket.user_id, products_quantity)
       basket.update(ordered_product_lines, summary)
     end
 
