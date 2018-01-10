@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Order
-  module Domain
+  module ReadModels
     class ProductQuantity < Dry::Struct
       T = Infrastructure::Types
 
