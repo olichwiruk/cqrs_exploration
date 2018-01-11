@@ -19,13 +19,9 @@ module Order
 
         def calculate_current_order(user_id)
           order_lines = order_repo.find_last(user_id).order_lines
-          products_quantity = order_lines.map do |line|
-            Order::ReadModels::ProductQuantity.new(
-              id: line.product_id,
-              price: product_repo.by_id(line.product_id).price,
-              quantity: line.quantity
-            )
-          end
+          products = product_repo.by_ids(order_lines.map(&:product_id))
+          products_quantity = Order::ReadModels::ProductQuantity::Composite
+            .from_order_lines(order_lines, products)
           calculate_total(products_quantity)
         end
       end
