@@ -130,15 +130,13 @@ MyApp.configure do |container|
   end
 
   container.register('services.pricing_service') do
-    Order::Services::Domain::PricingService.new(
-      container['repositories.orders'],
-      container['repositories.products']
-    )
+    Order::Services::Domain::PricingService.new
   end
 
   container.register('services.discount_service') do
     Order::Services::Domain::DiscountService.new(
       container['repositories.users'],
+      container['repositories.products'],
       container['repositories.orders'],
       container['repositories.discounts'],
       container['services.pricing_service']
