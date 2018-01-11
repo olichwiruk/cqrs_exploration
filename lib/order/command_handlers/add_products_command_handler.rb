@@ -4,10 +4,9 @@ module Order
   module CommandHandlers
     class AddProductsCommandHandler
       M = Dry::Monads
-      attr_reader :event_store, :order_repo, :product_repo
+      attr_reader :order_repo, :product_repo
 
-      def initialize(event_store, order_repo, product_repo)
-        @event_store = event_store
+      def initialize(order_repo, product_repo)
         @order_repo = order_repo
         @product_repo = product_repo
       end
@@ -24,9 +23,8 @@ module Order
 
         order = order_repo.by_id(order_id)
         order.add_products(order_lines)
-
         order_repo.save(order)
-        event_store.commit(order.events)
+
         M.Right(true)
       end
 

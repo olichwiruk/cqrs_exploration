@@ -2,10 +2,9 @@
 
 module Product
   class OrderCheckedOutEventHandler
-    attr_reader :event_store, :order_repo, :product_repo
+    attr_reader :order_repo, :product_repo
 
-    def initialize(event_store, order_repo, product_repo)
-      @event_store = event_store
+    def initialize(order_repo, product_repo)
       @order_repo = order_repo
       @product_repo = product_repo
     end
@@ -16,9 +15,7 @@ module Product
       lines.each do |line|
         product = product_repo.by_id(line.product_id)
         product.buy(line.quantity)
-        product_repo.update(product)
-        event_store.class.aggregate_type
-        event_store.commit(product.events)
+        product_repo.save(product)
       end
     end
   end

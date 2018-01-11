@@ -4,10 +4,9 @@ module Customer
   module Services
     class UpdateUserService
       M = Dry::Monads
-      attr_reader :event_store, :user_repo
+      attr_reader :user_repo
 
-      def initialize(event_store, user_repo)
-        @event_store = event_store
+      def initialize(user_repo)
         @user_repo = user_repo
       end
 
@@ -20,9 +19,7 @@ module Customer
 
         user = user_repo.by_id(validation_result.output[:id])
         user.update(validation_result.output[:user])
-
         user_repo.save(user)
-        event_store.commit(user.events)
 
         M.Right(true)
       end

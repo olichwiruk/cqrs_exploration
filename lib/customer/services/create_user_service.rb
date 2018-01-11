@@ -4,10 +4,9 @@ module Customer
   module Services
     class CreateUserService
       M = Dry::Monads
-      attr_reader :event_store, :user_repo
+      attr_reader :user_repo
 
-      def initialize(event_store, user_repo)
-        @event_store = event_store
+      def initialize(user_repo)
         @user_repo = user_repo
       end
 
@@ -22,8 +21,7 @@ module Customer
           validation_result.output
         )
 
-        saved_user = user_repo.create(user)
-        event_store.commit(user.events)
+        saved_user = user_repo.save(user)
 
         send_email(saved_user)
         M.Right(true)

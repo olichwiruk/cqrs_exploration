@@ -4,10 +4,9 @@ module Order
   module CommandHandlers
     class CheckoutOrderCommandHandler
       M = Dry::Monads
-      attr_reader :event_store, :order_repo
+      attr_reader :order_repo
 
-      def initialize(event_store, order_repo)
-        @event_store = event_store
+      def initialize(order_repo)
         @order_repo = order_repo
       end
 
@@ -20,7 +19,6 @@ module Order
         order = order_repo.by_id(order_id)
         order.checkout
         order_repo.save(order)
-        event_store.commit(order.events)
 
         M.Right(true)
       end

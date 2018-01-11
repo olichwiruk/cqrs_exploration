@@ -4,10 +4,9 @@ module Order
   module CommandHandlers
     class ApplyDiscountsCommandHandler
       M = Dry::Monads
-      attr_reader :event_store, :order_repo, :discount_service
+      attr_reader :order_repo, :discount_service
 
-      def initialize(event_store, order_repo, discount_service)
-        @event_store = event_store
+      def initialize(order_repo, discount_service)
         @order_repo = order_repo
         @discount_service = discount_service
       end
@@ -23,7 +22,6 @@ module Order
 
         order.apply_discounts(discounts)
         order_repo.save(order)
-        event_store.commit(order.events)
 
         M.Right(true)
       end

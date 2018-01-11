@@ -20,7 +20,8 @@ module Product
         products.to_a
       end
 
-      def update(product)
+      def save(product)
+        return create(product) if product.id.nil?
         products.by_pk(product.id).command(:update).call(product)
       end
 

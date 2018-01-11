@@ -47,49 +47,44 @@ MyApp.configure do |container|
     )
   end
 
-  container.register('repositories.event_repo.product') do
-    Infrastructure::EventRepo[:product].new(
-      container['persistence']
-    )
-  end
-
   container.register('repositories.products') do
-    Product::Repositories::ProductRepo.new(
-      container['persistence']
+    Infrastructure::VersionedRepo.new(
+      Product::Repositories::ProductRepo.new(
+        container['persistence']
+      ),
+      Infrastructure::EventRepo[:product].new(
+        container['persistence']
+      )
     )
   end
 
   container.register('services.add_product_service') do
     Product::Services::AddProductService.new(
-      container['repositories.event_repo.product'],
       container['repositories.products']
     )
   end
 
   container.register('services.update_product_service') do
     Product::Services::UpdateProductService.new(
-      container['repositories.event_repo.product'],
       container['repositories.products']
     )
   end
 
   container.register('events.order_checked_out_event_handler') do
     Product::OrderCheckedOutEventHandler.new(
-      container['repositories.event_repo.product'],
       container['repositories.orders'],
       container['repositories.products']
     )
   end
 
-  container.register('repositories.event_repo.user') do
-    Infrastructure::EventRepo[:user].new(
-      container['persistence']
-    )
-  end
-
   container.register('repositories.users') do
-    Customer::Repositories::UserRepo.new(
-      container['persistence']
+    Infrastructure::VersionedRepo.new(
+      Customer::Repositories::UserRepo.new(
+        container['persistence']
+      ),
+      Infrastructure::EventRepo[:user].new(
+        container['persistence']
+      )
     )
   end
 
@@ -101,14 +96,12 @@ MyApp.configure do |container|
 
   container.register('services.create_user_service') do
     Customer::Services::CreateUserService.new(
-      container['repositories.event_repo.user'],
       container['repositories.users']
     )
   end
 
   container.register('services.update_user_service') do
     Customer::Services::UpdateUserService.new(
-      container['repositories.event_repo.user'],
       container['repositories.users']
     )
   end
@@ -119,15 +112,14 @@ MyApp.configure do |container|
     )
   end
 
-  container.register('repositories.event_repo.order') do
-    Infrastructure::EventRepo[:order].new(
-      container['persistence']
-    )
-  end
-
   container.register('repositories.orders') do
-    Order::Repositories::OrderRepo.new(
-      container['persistence']
+    Infrastructure::VersionedRepo.new(
+      Order::Repositories::OrderRepo.new(
+        container['persistence']
+      ),
+      Infrastructure::EventRepo[:order].new(
+        container['persistence']
+      )
     )
   end
 
@@ -185,14 +177,12 @@ MyApp.configure do |container|
 
   container.register('commands.create_order_command_handler') do
     Order::CommandHandlers::CreateOrderCommandHandler.new(
-      container['repositories.event_repo.order'],
       container['repositories.orders']
     )
   end
 
   container.register('commands.add_products_command_handler') do
     Order::CommandHandlers::AddProductsCommandHandler.new(
-      container['repositories.event_repo.order'],
       container['repositories.orders'],
       container['repositories.products']
     )
@@ -200,7 +190,6 @@ MyApp.configure do |container|
 
   container.register('commands.change_order_command_handler') do
     Order::CommandHandlers::ChangeOrderCommandHandler.new(
-      container['repositories.event_repo.order'],
       container['repositories.orders'],
       container['repositories.products']
     )
@@ -208,14 +197,12 @@ MyApp.configure do |container|
 
   container.register('commands.checkout_order_command_handler') do
     Order::CommandHandlers::CheckoutOrderCommandHandler.new(
-      container['repositories.event_repo.order'],
       container['repositories.orders']
     )
   end
 
   container.register('commands.apply_discounts_command_handler') do
     Order::CommandHandlers::ApplyDiscountsCommandHandler.new(
-      container['repositories.event_repo.order'],
       container['repositories.orders'],
       container['services.discount_service']
     )
