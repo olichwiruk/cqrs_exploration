@@ -6,7 +6,6 @@ module Order
       class DiscountService
         DiscountFactory = Order::Domain::Discounts::DiscountFactory
 
-        attr_reader :user_id
         attr_reader :user_repo, :order_repo, :discount_repo, :pricing_service
 
         def initialize(user_repo, order_repo, discount_repo, pricing_service)
@@ -16,19 +15,24 @@ module Order
           @pricing_service = pricing_service
         end
 
-        def applicable_discounts(user_id)
-          @user_id = user_id
-          all_discounts.select(&:applicable)
-        end
-
         def sum_applicable_discounts(user_id)
           applicable_discounts(user_id).inject(0) do |sum, discount|
             sum + discount.value
           end
         end
 
+        def apply_discounts_to(order)
+          discounts = applicable_discounts(order.user_id)
+          order.apply_discounts(discounts)
+        end
+
         # @api private
-        def all_discounts
+        def applicable_discounts(user_id)
+          all_discounts(user_id).select(&:applicable)
+        end
+
+        # @api private
+        def all_discounts(user_id)
           [
             DiscountFactory.build_first_order_discount(
               order_repo.first_order?(user_id),

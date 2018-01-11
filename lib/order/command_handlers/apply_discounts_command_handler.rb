@@ -17,10 +17,9 @@ module Order
         return M.Left(validation_result) if validation_result.failure?
 
         order_uuid = validation_result.output[:aggregate_uuid]
-        order = order_repo.by_uuid(order_uuid)
-        discounts = discount_service.applicable_discounts(order.user_id)
 
-        order.apply_discounts(discounts)
+        order = order_repo.by_uuid(order_uuid)
+        discount_service.apply_discounts_to(order)
         order_repo.save(order)
 
         M.Right(true)
