@@ -21,9 +21,7 @@ module Order
         end
 
         def sum_applicable_discounts(user_id)
-          applicable_discounts(user_id).inject(0) do |sum, discount|
-            sum + discount.value
-          end
+          applicable_discounts(user_id).sum(&:value)
         end
 
         def apply_discounts_to(order)
@@ -56,7 +54,7 @@ module Order
 
         # @api private
         def calculate_current_order(user_id)
-          order_lines = order_repo.find_last_order_lines(user_id)
+          order_lines = order_repo.find_last(user_id).order_lines
           products = product_repo.by_ids(order_lines.map(&:product_id))
           products_quantity = Order::ReadModels::ProductQuantity::Composite
             .from_order_lines(order_lines, products)
