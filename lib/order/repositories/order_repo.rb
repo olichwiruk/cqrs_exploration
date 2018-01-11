@@ -36,6 +36,10 @@ module Order
         orders.combine(:order_lines).where(user_id: user_id).order { id.desc }.first
       end
 
+      def find_last_order_lines(user_id)
+        find_last(user_id).order_lines
+      end
+
       def first_order?(user_id)
         orders.where(user_id: user_id).to_a.size == 1
       end

@@ -56,7 +56,7 @@ module Order
 
         # @api private
         def calculate_current_order(user_id)
-          order_lines = order_repo.find_last(user_id).order_lines
+          order_lines = order_repo.find_last_order_lines(user_id)
           products = product_repo.by_ids(order_lines.map(&:product_id))
           products_quantity = Order::ReadModels::ProductQuantity::Composite
             .from_order_lines(order_lines, products)
