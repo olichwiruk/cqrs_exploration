@@ -12,8 +12,9 @@ module Product
     def order_checked_out(event)
       order = order_repo.by_uuid(event.aggregate_uuid)
       lines = order.order_lines
+      products = product_repo.by_ids(lines.map(&:product_id))
       lines.each do |line|
-        product = product_repo.by_id(line.product_id)
+        product = products.find { |p| p.id == line.product_id }
         product.buy(line.quantity)
         product_repo.save(product)
       end
