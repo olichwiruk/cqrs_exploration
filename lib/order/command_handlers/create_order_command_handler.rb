@@ -4,10 +4,9 @@ module Order
   module CommandHandlers
     class CreateOrderCommandHandler
       M = Dry::Monads
-      attr_reader :event_store, :order_repo
+      attr_reader :order_repo
 
-      def initialize(event_store, order_repo)
-        @event_store = event_store
+      def initialize(order_repo)
         @order_repo = order_repo
       end
 
@@ -18,9 +17,7 @@ module Order
         order = ::Order::Domain::Order.initialize(
           validation_result.output
         )
-
-        order_repo.create(order.to_h)
-        event_store.commit(order.events)
+        order_repo.save(order)
 
         M.Right(true)
       end

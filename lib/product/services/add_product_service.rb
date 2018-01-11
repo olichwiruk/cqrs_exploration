@@ -4,10 +4,9 @@ module Product
   module Services
     class AddProductService
       M = Dry::Monads
-      attr_reader :event_store, :product_repo
+      attr_reader :product_repo
 
-      def initialize(event_store, product_repo)
-        @event_store = event_store
+      def initialize(product_repo)
         @product_repo = product_repo
       end
 
@@ -18,9 +17,7 @@ module Product
         product = Product::Domain::Product.initialize(
           validation_result.output
         )
-
-        product_repo.create(product)
-        event_store.commit(product.events)
+        product_repo.save(product)
 
         M.Right(true)
       end

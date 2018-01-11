@@ -17,6 +17,7 @@ module Customer
       end
 
       def save(user)
+        return create(user) if user.id.nil?
         users.by_pk(user.id).command(:update).call(user.to_h)
 
         save_loyalty_card(user.loyalty_card) if user.loyalty_card

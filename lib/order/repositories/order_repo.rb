@@ -11,6 +11,7 @@ module Order
       struct_namespace Order::Domain
 
       def save(order)
+        return create(order) if order.id.nil?
         orders.by_pk(order.id).changeset(:update, order.to_h).commit
         save_order_lines(order.order_lines) if order.order_lines
         save_order_discounts(order) if order.discounts
