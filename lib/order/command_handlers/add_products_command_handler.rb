@@ -19,24 +19,14 @@ module Order
         order_id = validation_result.output[:order_id]
         selected_products = validation_result.output[:selected_products]
 
-        order_lines = map_to_order_lines(order_id, selected_products)
+        order_lines = Order::Domain::OrderLine::Composite
+          .from_products(selected_products, order_id)
 
         order = order_repo.by_id(order_id)
         order.add_products(order_lines)
         order_repo.save(order)
 
         M.Right(true)
-      end
-
-      def map_to_order_lines(order_id, selected_products)
-        selected_products.map do |product|
-          Order::Domain::OrderLine.new(
-            id: product[:order_line_id],
-            order_id: order_id,
-            product_id: product[:id],
-            quantity: product[:added_quantity]
-          )
-        end
       end
     end
   end

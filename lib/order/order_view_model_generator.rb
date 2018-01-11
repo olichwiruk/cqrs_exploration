@@ -35,35 +35,20 @@ module Order
     def generate_refreshed_basket(order)
       basket = basket_repo.find_or_create(order.user_id)
 
-      ordered_product_lines = map_to_ordered_product_lines(basket.id, order.order_lines)
+      opls = Customer::ReadModels::OrderedProductLine::Composite
+        .from_order_lines(order.order_lines, basket.id)
       products_quantity = map_to_products_quantity(order.order_lines)
 
       summary = basket_calculator
         .calculate(basket.user_id, products_quantity)
-      basket.update(ordered_product_lines, summary)
-    end
-
-    # @api private
-    def map_to_ordered_product_lines(basket_id, order_lines)
-      order_lines.map do |ol|
-        Customer::ReadModels::OrderedProductLine.new(
-          order_line_id: ol.id,
-          basket_id: basket_id,
-          product_id: ol.product_id,
-          added_quantity: ol.quantity
-        )
-      end
+      basket.update(opls, summary)
     end
 
     # @api private
     def map_to_products_quantity(order_lines)
-      order_lines.map do |line|
-        Order::ReadModels::ProductQuantity.new(
-          id: line.product_id,
-          price: product_repo.by_id(line.product_id).price,
-          quantity: line.quantity
-        )
-      end
+      products = product_repo.by_ids(order_lines.map(&:product_id))
+      Order::ReadModels::ProductQuantity::Composite
+        .from_order_lines(order_lines, products)
     end
   end
 end
