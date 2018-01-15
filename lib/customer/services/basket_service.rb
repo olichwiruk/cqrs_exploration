@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Order
+module Customer
   module Services
     class BasketService
       attr_reader :add_products_to_order, :change_order, :checkout
