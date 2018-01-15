@@ -20,6 +20,13 @@ module Customer
         )
       end
 
+      container.register('services.basket_calculator') do
+        Customer::ReadModels::Services::BasketCalculator.new(
+          container['services.pricing_service'],
+          container['services.discount_service']
+        )
+      end
+
       container.register('controllers.users_controller') do
         UsersController.new(
           container['repositories.users'],
@@ -42,7 +49,7 @@ module Customer
       end
 
       container.register('services.basket_service') do
-        Order::Services::BasketService.new(
+        Customer::Services::BasketService.new(
           container['services.add_products_to_order_service'],
           container['services.change_order_service'],
           container['services.checkout_service']
@@ -61,10 +68,12 @@ module Customer
         )
       end
 
-      container.register('services.basket_calculator') do
-        Customer::ReadModels::Services::BasketCalculator.new(
-          container['services.pricing_service'],
-          container['services.discount_service']
+      container.register('events.basket_generator') do
+        Customer::ReadModels::Generators::BasketGenerator.new(
+          container['repositories.baskets'],
+          container['repositories.orders'],
+          container['repositories.products'],
+          container['services.basket_calculator']
         )
       end
     end

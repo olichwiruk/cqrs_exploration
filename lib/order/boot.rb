@@ -40,6 +40,14 @@ module Order
         )
       end
 
+      container.register('generators.draft_order_generator') do
+        Order::Generators::DraftOrderGenerator.new(
+          container['repositories.products'],
+          container['repositories.orders'],
+          container['repositories.baskets']
+        )
+      end
+
       container.register('services.add_products_to_order_service') do
         Order::Services::AddProductsToOrderService.new(
           container['repositories.orders'],
@@ -51,14 +59,6 @@ module Order
         Order::Services::ChangeOrderService.new(
           container['repositories.orders'],
           container['repositories.products']
-        )
-      end
-
-      container.register('generators.draft_order_generator') do
-        Order::Generators::DraftOrderGenerator.new(
-          container['repositories.products'],
-          container['repositories.orders'],
-          container['repositories.baskets']
         )
       end
 
@@ -100,15 +100,6 @@ module Order
         Order::CommandHandlers::ApplyDiscountsCommandHandler.new(
           container['repositories.orders'],
           container['services.discount_service']
-        )
-      end
-
-      container.register('events.order_view_model_generator') do
-        Order::OrderViewModelGenerator.new(
-          container['repositories.baskets'],
-          container['repositories.orders'],
-          container['repositories.products'],
-          container['services.basket_calculator']
         )
       end
 

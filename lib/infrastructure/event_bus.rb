@@ -20,21 +20,21 @@ module Infrastructure
         register_handler('products_added') do
           [
             container['events.order_process_manager_router'],
-            container['events.order_view_model_generator']
+            container['events.basket_generator']
           ]
         end
 
         register_handler('order_changed') do
           [
             container['events.order_process_manager_router'],
-            container['events.order_view_model_generator']
+            container['events.basket_generator']
           ]
         end
 
         register_handler('order_checked_out') do
           [
             container['events.order_process_manager_router'],
-            container['events.order_view_model_generator'],
+            container['events.basket_generator'],
             container['events.order_checked_out_event_handler']
           ]
         end
