@@ -2,7 +2,7 @@
 
 module Infrastructure
   class EventBus
-    @bus = { }
+    @bus = {}
 
     class << self
       def handlers(event_name)
@@ -10,12 +10,41 @@ module Infrastructure
         @bus.fetch(event_name).call
       end
 
-      def register_event_handler(name, &block)
-        @bus[name] = block
+      def register(container)
+        register_handler('order_created') do
+          [
+            container['events.order_process_manager_router']
+          ]
+        end
+
+        register_handler('products_added') do
+          [
+            container['events.order_process_manager_router'],
+            container['events.order_view_model_generator']
+          ]
+        end
+
+        register_handler('order_changed') do
+          [
+            container['events.order_process_manager_router'],
+            container['events.order_view_model_generator']
+          ]
+        end
+
+        register_handler('order_checked_out') do
+          [
+            container['events.order_process_manager_router'],
+            container['events.order_view_model_generator'],
+            container['events.order_checked_out_event_handler']
+          ]
+        end
+
+        @bus.freeze
       end
 
-      def finalize
-        @bus.freeze
+      # @api private
+      def register_handler(name, &block)
+        @bus[name] = block
       end
     end
   end
