@@ -24,10 +24,6 @@ module Product
         return create(product) if product.id.nil?
         products.by_pk(product.id).command(:update).call(product)
       end
-
-      def available_quantity?(id, q)
-        !products.where(id: id) { quantity >= (q || 0) }.count.zero?
-      end
     end
   end
 end

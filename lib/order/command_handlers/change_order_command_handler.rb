@@ -4,11 +4,10 @@ module Order
   module CommandHandlers
     class ChangeOrderCommandHandler
       M = Dry::Monads
-      attr_reader :order_repo, :product_repo
+      attr_reader :order_repo
 
-      def initialize(order_repo, product_repo)
+      def initialize(order_repo)
         @order_repo = order_repo
-        @product_repo = product_repo
       end
 
       def execute(command)

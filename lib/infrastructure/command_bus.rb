@@ -12,23 +12,23 @@ module Infrastructure
 
       def register(container)
         register_handler('Order::Commands::CreateOrderCommand') do
-          container['commands.create_order_command_handler']
+          container['order.commands.create_order_command_handler']
         end
 
         register_handler('Order::Commands::ApplyDiscountsCommand') do
-          container['commands.apply_discounts_command_handler']
+          container['order.commands.apply_discounts_command_handler']
         end
 
         register_handler('Order::Commands::AddProductsCommand') do
-          container['commands.add_products_command_handler']
+          container['order.commands.add_products_command_handler']
         end
 
         register_handler('Order::Commands::ChangeOrderCommand') do
-          container['commands.change_order_command_handler']
+          container['order.commands.change_order_command_handler']
         end
 
         register_handler('Order::Commands::CheckoutOrderCommand') do
-          container['commands.checkout_order_command_handler']
+          container['order.commands.checkout_order_command_handler']
         end
 
         @bus.freeze
