@@ -6,10 +6,14 @@ module Customer
   module Repositories
     class UserRepo < ROM::Repository[:users]
       commands :create, delete: :by_pk
-      struct_namespace Customer::Domain
+      struct_namespace ::Customer::Domain
 
       def by_id(id)
         users.combine(:loyalty_card).by_pk(id).one!
+      end
+
+      def by_uuid(uuid)
+        users.where(uuid: uuid).one!
       end
 
       def all_users

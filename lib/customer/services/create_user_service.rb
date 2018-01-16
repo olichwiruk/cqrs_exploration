@@ -21,8 +21,9 @@ module Customer
           validation_result.output
         )
 
-        saved_user = user_repo.save(user)
+        user_repo.save(user)
 
+        saved_user = user_repo.by_uuid(user.uuid)
         send_email(saved_user)
         M.Right(true)
       end

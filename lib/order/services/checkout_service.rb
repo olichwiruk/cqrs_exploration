@@ -16,36 +16,12 @@ module Order
         validation_result = Validator.call(params.to_h)
         return M.Left(validation_result) if validation_result.failure?
         user_id = validation_result.output[:user_id]
-
         order = order_repo.find_current(user_id)
-        basket = basket_repo.by_user_id(user_id)
 
         command = Order::Commands::CheckoutOrderCommand.new(
           order_id: order.id
         )
-        result = Infrastructure::CommandBus.send(command)
-
-        return result if result.failure?
-
-        user = user_repo.by_id(user_id)
-        update_loyalty_card(user)
-        send_email(user, basket)
-
-        result
-      end
-
-      # @api private
-      def update_loyalty_card(user)
-        user.give_loyalty_card
-        user_repo.save(user)
-      end
-
-      # @api private
-      def send_email(user, basket)
-        p "To: #{user.email} " \
-          "Your order: #{basket.ordered_product_lines} | " \
-          "#{basket.total_price} USD, #{basket.discount}% " \
-          "| Final: #{basket.final_price} USD"
+        Infrastructure::CommandBus.send(command)
       end
 
       # @api private

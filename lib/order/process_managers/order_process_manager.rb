@@ -36,7 +36,7 @@ module Order
         @state = StateValues::CHECKED_OUT
         @completed = true
 
-        command = Order::Commands::ApplyDiscountsCommand.new(
+        command = ::Order::Commands::ApplyDiscountsCommand.new(
           aggregate_uuid: order_uuid
         )
         add_command(command)
