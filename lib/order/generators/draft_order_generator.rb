@@ -65,7 +65,7 @@ module Order
 
       # @api private
       def build_offered_product(product, order_line, discount)
-        Product::ReadModels::OfferedProduct.new(
+        Order::ReadModels::OfferedProduct.new(
           id: product.id,
           name: product.name,
           quantity: product.quantity,
