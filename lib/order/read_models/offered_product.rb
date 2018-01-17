@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Product
+module Order
   module ReadModels
     class OfferedProduct < Dry::Struct
       constructor_type :schema

@@ -10,7 +10,7 @@ module Order
       attribute :discount, T::Int
       attribute :total_price, T::Float
       attribute :final_price, T::Float
-      attribute :products, T.Array(Product::ReadModels::OfferedProduct)
+      attribute :products, T.Array(Order::ReadModels::OfferedProduct)
     end
   end
 end
