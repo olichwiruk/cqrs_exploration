@@ -66,7 +66,8 @@ module Order
         Order::Services::CheckoutService.new(
           container['customer.repositories.users'],
           container['order.read_repos.baskets'],
-          container['order.repositories.orders']
+          container['order.repositories.orders'],
+          container['order.read_repos.products']
         )
       end
 
