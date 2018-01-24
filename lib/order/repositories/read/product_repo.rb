@@ -4,6 +4,8 @@ module Order
   module Repositories
     module Read
       class ProductRepo < ROM::Repository[:products]
+        struct_namespace Order::ReadModels::Product
+
         def by_ids(ids)
           products.by_pk(ids).to_a
         end

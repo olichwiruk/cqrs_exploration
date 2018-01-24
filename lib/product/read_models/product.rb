@@ -2,10 +2,7 @@
 
 module Product
   module ReadModels
-    class Product < Dry::Struct
-      constructor_type :schema
-      T = Infrastructure::Types
-
+    class Product < ::Domain::SchemaStruct
       attribute :id, T::Int
       attribute :name, T::String
       attribute :quantity, T::Int
