@@ -3,6 +3,12 @@
 module Infrastructure
   class EventRepo < ROM::Repository[:events]
     commands :create
+    attr_reader :event_bus
+
+    def initialize(rom_env, event_bus)
+      super(rom_env)
+      @event_bus = event_bus
+    end
 
     class << self
       def [](agg_type)
@@ -29,6 +35,16 @@ module Infrastructure
       end
     end
 
+    def publish(event)
+      name = event_name(event)
+      handlers = event_bus.handlers(name)
+      return if handlers.nil?
+
+      handlers.each do |handler|
+        handler.__send__(name, event)
+      end
+    end
+
     # @api private
     def save(event)
       create(
@@ -38,17 +54,6 @@ module Infrastructure
         data: event.values.to_s,
         created_at: Time.now
       )
-    end
-
-    # @api private
-    def publish(event)
-      name = event_name(event)
-      handlers = Infrastructure::EventBus.handlers(name)
-      return if handlers.nil?
-
-      handlers.each do |handler|
-        handler.__send__(name, event)
-      end
     end
 
     # @api private

@@ -4,11 +4,12 @@ module Order
   module Services
     class ChangeOrderService
       M = Dry::Monads
-      attr_reader :order_repo, :product_repo
+      attr_reader :order_repo, :product_repo, :command_bus
 
-      def initialize(order_repo, product_repo)
+      def initialize(order_repo, product_repo, command_bus)
         @order_repo = order_repo
         @product_repo = product_repo
+        @command_bus = command_bus
       end
 
       def call(params)
@@ -24,7 +25,7 @@ module Order
           order_id: order.id,
           products: validation_result.output[:products]
         )
-        Infrastructure::CommandBus.send(command)
+        command_bus.send(command)
       end
 
       # @api private

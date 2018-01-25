@@ -3,14 +3,19 @@
 module Customer
   class Boot
     def self.call(container)
+      container.register('customer.repositories.event_repo') do
+        Infrastructure::EventRepo[:user].new(
+          container['persistence'],
+          container['event_bus']
+        )
+      end
+
       container.register('customer.repositories.users') do
         Infrastructure::VersionedRepo.new(
           Customer::Repositories::UserRepo.new(
             container['persistence']
           ),
-          Infrastructure::EventRepo[:user].new(
-            container['persistence']
-          )
+          container['customer.repositories.event_repo']
         )
       end
 
@@ -20,31 +25,10 @@ module Customer
         )
       end
 
-      container.register('customer.services.basket_calculator') do
-        Customer::ReadModels::Services::BasketCalculator.new(
-          container['order.services.pricing_service'],
-          container['order.services.discount_service']
-        )
-      end
-
-      container.register('controllers.users_controller') do
-        UsersController.new(
-          container['customer.repositories.users'],
-          container['customer.services.users_service']
-        )
-      end
-
       container.register('customer.services.users_service') do
         Customer::Services::UsersService.new(
           container['customer.services.create_user_service'],
           container['customer.services.update_user_service']
-        )
-      end
-
-      container.register('controllers.basket_controller') do
-        BasketController.new(
-          container['order.generators.draft_order_generator'],
-          container['customer.services.basket_service']
         )
       end
 
@@ -68,19 +52,18 @@ module Customer
         )
       end
 
-      container.register('customer.events.basket_generator') do
-        Customer::ReadModels::Generators::BasketGenerator.new(
+      container.register('customer.integration.order_updated') do
+        Customer::Integration::OrderUpdatedHandler.new(
           container['customer.repositories.baskets'],
-          container['customer.read_repos.orders'],
-          container['customer.read_repos.products'],
-          container['customer.services.basket_calculator']
+          container['customer.read_repos.orders']
         )
       end
 
-      container.register('customer.events.order_checked_out_event_handler') do
-        Customer::OrderCheckedOutEventHandler.new(
-          container['customer.read_repos.orders'],
-          container['customer.repositories.users']
+      container.register('customer.integration.order_checked_out') do
+        Customer::Integration::OrderCheckedOutHandler.new(
+          container['customer.repositories.baskets'],
+          container['customer.repositories.users'],
+          container['customer.read_repos.orders']
         )
       end
 

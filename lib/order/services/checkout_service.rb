@@ -4,13 +4,12 @@ module Order
   module Services
     class CheckoutService
       M = Dry::Monads
-      attr_reader :user_repo, :basket_repo, :order_repo, :product_repo
+      attr_reader :order_repo, :product_repo, :command_bus
 
-      def initialize(user_repo, basket_repo, order_repo, product_repo)
-        @user_repo = user_repo
-        @basket_repo = basket_repo
+      def initialize(order_repo, product_repo, command_bus)
         @order_repo = order_repo
         @product_repo = product_repo
+        @command_bus = command_bus
       end
 
       def call(params)
@@ -31,7 +30,7 @@ module Order
         command = Order::Commands::CheckoutOrderCommand.new(
           order_id: order.id
         )
-        Infrastructure::CommandBus.send(command)
+        command_bus.send(command)
       end
 
       # @api private

@@ -3,14 +3,19 @@
 module Order
   class Boot
     def self.call(container)
+      container.register('order.repositories.event_repo') do
+        Infrastructure::EventRepo[:order].new(
+          container['persistence'],
+          container['event_bus']
+        )
+      end
+
       container.register('order.repositories.orders') do
         Infrastructure::VersionedRepo.new(
           Order::Repositories::OrderRepo.new(
             container['persistence']
           ),
-          Infrastructure::EventRepo[:order].new(
-            container['persistence']
-          )
+          container['order.repositories.event_repo']
         )
       end
 
@@ -27,7 +32,9 @@ module Order
       end
 
       container.register('order.services.pricing_service') do
-        Order::Services::Domain::PricingService.new
+        Order::Services::Domain::PricingService.new(
+          container['order.read_repos.products']
+        )
       end
 
       container.register('order.services.discount_service') do
@@ -37,6 +44,13 @@ module Order
           container['order.repositories.orders'],
           container['order.repositories.discounts'],
           container['order.services.pricing_service']
+        )
+      end
+
+      container.register('order.services.order_summary_service') do
+        Order::Services::Domain::OrderSummaryService.new(
+          container['order.services.pricing_service'],
+          container['order.services.discount_service']
         )
       end
 
@@ -51,23 +65,24 @@ module Order
       container.register('order.services.add_products_to_order_service') do
         Order::Services::AddProductsToOrderService.new(
           container['order.repositories.orders'],
-          container['order.read_repos.products']
+          container['order.read_repos.products'],
+          container['command_bus']
         )
       end
 
       container.register('order.services.change_order_service') do
         Order::Services::ChangeOrderService.new(
           container['order.repositories.orders'],
-          container['order.read_repos.products']
+          container['order.read_repos.products'],
+          container['command_bus']
         )
       end
 
       container.register('order.services.checkout_service') do
         Order::Services::CheckoutService.new(
-          container['customer.repositories.users'],
-          container['order.read_repos.baskets'],
           container['order.repositories.orders'],
-          container['order.read_repos.products']
+          container['order.read_repos.products'],
+          container['command_bus']
         )
       end
 
@@ -79,19 +94,24 @@ module Order
 
       container.register('order.commands.add_products_command_handler') do
         Order::CommandHandlers::AddProductsCommandHandler.new(
-          container['order.repositories.orders']
+          container['order.repositories.orders'],
+          container['order.repositories.event_repo'],
+          container['order.services.order_summary_service']
         )
       end
 
       container.register('order.commands.change_order_command_handler') do
         Order::CommandHandlers::ChangeOrderCommandHandler.new(
-          container['order.repositories.orders']
+          container['order.repositories.orders'],
+          container['order.repositories.event_repo'],
+          container['order.services.order_summary_service']
         )
       end
 
       container.register('order.commands.checkout_order_command_handler') do
         Order::CommandHandlers::CheckoutOrderCommandHandler.new(
-          container['order.repositories.orders']
+          container['order.repositories.orders'],
+          container['order.repositories.event_repo']
         )
       end
 
@@ -104,7 +124,16 @@ module Order
 
       container.register('order.events.order_process_manager_router') do
         Order::ProcessManagers::OrderProcessManagerRouter.new(
-          container['order.repositories.order_process_managers']
+          container['order.repositories.order_process_managers'],
+          container['command_bus']
+        )
+      end
+
+      container.register('order.integration.product_price_changed') do
+        Order::Integration::ProductPriceChangedHandler.new(
+          container['order.repositories.orders'],
+          container['order.services.order_summary_service'],
+          container['order.repositories.event_repo']
         )
       end
 

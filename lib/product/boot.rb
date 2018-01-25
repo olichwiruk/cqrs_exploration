@@ -3,22 +3,19 @@
 module Product
   class Boot
     def self.call(container)
+      container.register('product.repositories.event_repo') do
+        Infrastructure::EventRepo[:product].new(
+          container['persistence'],
+          container['event_bus']
+        )
+      end
+
       container.register('product.repositories.products') do
         Infrastructure::VersionedRepo.new(
           Product::Repositories::ProductRepo.new(
             container['persistence']
           ),
-          Infrastructure::EventRepo[:product].new(
-            container['persistence']
-          )
-        )
-      end
-
-      container.register('controllers.products_controller') do
-        ProductsController.new(
-          container['product.repositories.products'],
-          container['order.generators.draft_order_generator'],
-          container['product.services.products_service']
+          container['product.repositories.event_repo']
         )
       end
 
@@ -37,12 +34,13 @@ module Product
 
       container.register('product.services.update_product_service') do
         Product::Services::UpdateProductService.new(
-          container['product.repositories.products']
+          container['product.repositories.products'],
+          container['product.repositories.event_repo']
         )
       end
 
-      container.register('product.events.order_checked_out_event_handler') do
-        Product::OrderCheckedOutEventHandler.new(
+      container.register('product.integration.order_checked_out') do
+        Product::Integration::OrderCheckedOutHandler.new(
           container['product.read_repos.orders'],
           container['product.repositories.products']
         )

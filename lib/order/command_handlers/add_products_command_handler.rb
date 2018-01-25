@@ -4,10 +4,12 @@ module Order
   module CommandHandlers
     class AddProductsCommandHandler
       M = Dry::Monads
-      attr_reader :order_repo
+      attr_reader :order_repo, :event_repo, :order_summary
 
-      def initialize(order_repo)
+      def initialize(order_repo, event_repo, order_summary)
         @order_repo = order_repo
+        @event_repo = event_repo
+        @order_summary = order_summary
       end
 
       def execute(command)
@@ -24,6 +26,14 @@ module Order
         order = order_repo.by_id(order_id)
         order.add_products(order_lines)
         order_repo.save(order)
+
+        event_repo.publish(
+          Order::Events::Integration::OrderUpdatedIntegrationEvent.new(
+            order_uuid: order.uuid,
+            total_price: order_summary.total_price(order),
+            discount: order_summary.discount(order)
+          )
+        )
 
         M.Right(true)
       end

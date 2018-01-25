@@ -3,12 +3,13 @@
 module Order
   module Services
     class AddProductsToOrderService
-      attr_reader :order_repo, :product_repo
+      attr_reader :order_repo, :product_repo, :command_bus
       M = Dry::Monads
 
-      def initialize(order_repo, product_repo)
+      def initialize(order_repo, product_repo, command_bus)
         @order_repo = order_repo
         @product_repo = product_repo
+        @command_bus = command_bus
       end
 
       def call(params)
@@ -26,7 +27,7 @@ module Order
           order_id: order.id,
           selected_products: select_added_products(products)
         )
-        Infrastructure::CommandBus.send(command)
+        command_bus.send(command)
       end
 
       # @api private
@@ -34,7 +35,7 @@ module Order
         command = Order::Commands::CreateOrderCommand.new(
           user_id: user_id
         )
-        Infrastructure::CommandBus.send(command)
+        command_bus.send(command)
         order_repo.find_current(user_id)
       end
 

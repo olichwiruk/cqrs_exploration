@@ -4,10 +4,11 @@ module Product
   module Services
     class UpdateProductService
       M = Dry::Monads
-      attr_reader :product_repo
+      attr_reader :product_repo, :event_store
 
-      def initialize(product_repo)
+      def initialize(product_repo, event_store)
         @product_repo = product_repo
+        @event_store = event_store
       end
 
       def call(params)
@@ -15,8 +16,19 @@ module Product
         return M.Left(validation_result) if validation_result.failure?
 
         product = product_repo.by_id(params[:id])
+        old_price = product.price
+        new_price = validation_result.output[:product][:price]
+
         product.update(validation_result.output[:product])
         product_repo.save(product)
+
+        if new_price != old_price
+          event_store.publish(
+            Product::Events::Integration::ProductPriceChangedEvent.new(
+              product_id: product.id
+            )
+          )
+        end
 
         M.Right(true)
       end

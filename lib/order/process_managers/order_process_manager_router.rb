@@ -3,10 +3,11 @@
 module Order
   module ProcessManagers
     class OrderProcessManagerRouter
-      attr_reader :order_pm_repo
+      attr_reader :order_pm_repo, :command_bus
 
-      def initialize(order_pm_repo)
+      def initialize(order_pm_repo, command_bus)
         @order_pm_repo = order_pm_repo
+        @command_bus = command_bus
       end
 
       def order_created(event)
@@ -37,7 +38,7 @@ module Order
       def save(pm)
         order_pm_repo.save(pm)
         while (command = pm.commands.shift)
-          Infrastructure::CommandBus.send(command)
+          command_bus.send(command)
         end
       end
     end

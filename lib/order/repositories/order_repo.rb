@@ -36,6 +36,11 @@ module Order
         orders.combine(:order_lines).where(user_id: user_id).order { id.desc }.first
       end
 
+      def find_incomplete_with_product(product_id)
+        order_ids = order_lines.where(product_id: product_id).to_a.map(&:order_id)
+        orders.by_pk(order_ids).combine(:order_lines).where(completed: 0).to_a
+      end
+
       def find_last_order_lines(user_id)
         find_last(user_id).order_lines
       end
