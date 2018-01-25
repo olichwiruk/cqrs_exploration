@@ -18,19 +18,21 @@ module Order
         user_id = validation_result.output[:user_id]
         order = order_repo.find_current(user_id)
 
-        order.order_lines.each do |ol|
-          return M.Left(
-            OpenStruct.new(errors: { ol.product_id => 'out of stock' })
-          ) unless product_repo.available_quantity?(
-            ol.product_id,
-            ol.quantity
-          )
-        end
+        validate_products_quantity(order.order_lines)
 
         command = Order::Commands::CheckoutOrderCommand.new(
           order_id: order.id
         )
         command_bus.send(command)
+      end
+
+      def validate_products_quantity(order_lines)
+        order_lines.each do |ol|
+          next if product_repo.available_quantity?(ol.product_id, ol.quantity)
+
+          result = OpenStruct.new(errors: { ol.product_id => 'out of stock' })
+          return M.Left(result)
+        end
       end
 
       # @api private

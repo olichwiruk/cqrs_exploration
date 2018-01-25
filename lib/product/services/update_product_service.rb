@@ -22,15 +22,18 @@ module Product
         product.update(validation_result.output[:product])
         product_repo.save(product)
 
-        if new_price != old_price
-          event_store.publish(
-            Product::Events::Integration::ProductPriceChangedEvent.new(
-              product_id: product.id
-            )
-          )
-        end
+        publish_message if new_price != old_price
 
         M.Right(true)
+      end
+
+      # @api private
+      def publish_message
+        event_store.publish(
+          Product::Events::Integration::ProductPriceChangedEvent.new(
+            product_id: product.id
+          )
+        )
       end
 
       # @api private
